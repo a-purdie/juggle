@@ -32,22 +32,29 @@ def register_callbacks(app):
         nextPaymentDate):
         """
         Makes sure that the Add Debt button is only enabled when each field is 
-        filled with valid values. Add Debt button is disabled by this callback if 
-        the amount of interest that accrues in a pay period exceeds the provided 
-        payment amount. Add Debt button is disabled if any of the six fields are 
-        blank. Add Debt button is disabled if the payment amount exceeds the 
-        balance.
+        filled with valid values. Add Debt button is disabled by this callback 
+        if the amount of interest that accrues in a pay period exceeds the 
+        provided payment amount. Add Debt button is disabled if any of the six 
+        fields are blank. Add Debt button is disabled if the payment amount 
+        exceeds the balance.
         """
-        paymentAmountArgs = [balance, interestRate, paymentAmount, paymentFrequency]
+        paymentAmountArgs = [
+            balance, interestRate, paymentAmount, paymentFrequency
+        ]
         if all(i is not None and len(i) > 0 for i in paymentAmountArgs):
-            # If the user has entered a balance, rate, payment amount, and payment 
-            # frequency...
+            # If the user has entered a balance, rate, payment amount, and 
+            # payment frequency...
             days = {'Monthly': 31, 'Fortnightly': 14, 'Weekly': 7}
-            periodInterest = float(balance) * float(interestRate) * (days[paymentFrequency]/36500)
+            periodInterest = (
+                float(balance) 
+                * float(interestRate) 
+                * (days[paymentFrequency]/36500)
+            )
             if periodInterest > float(paymentAmount):
-                # And if the payment amount won't cover the interest amount that 
-                # accrues based on the selected frequency, disable the add debt 
-                # button and display the Payment Amount invalid feedback.
+                # And if the payment amount won't cover the interest amount 
+                # that accrues based on the selected frequency, disable the 
+                # add debt button and display the Payment Amount invalid 
+                # feedback.
                 return True, False, True, False
             if float(balance) < float(paymentAmount):
                 return False, True, True, False
@@ -87,22 +94,29 @@ def register_callbacks(app):
         nextPaymentDate):
         """
         Makes sure that the Add Debt button is only enabled when each field is 
-        filled with valid values. Add Debt button is disabled by this callback if 
-        the amount of interest that accrues in a pay period exceeds the provided 
-        payment amount. Add Debt button is disabled if any of the six fields are 
-        blank. Add Debt button is disabled if the payment amount exceeds the 
-        balance.
+        filled with valid values. Add Debt button is disabled by this callback 
+        if the amount of interest that accrues in a pay period exceeds the 
+        provided payment amount. Add Debt button is disabled if any of the 
+        six fields are blank. Add Debt button is disabled if the payment 
+        amount exceeds the balance.
         """
-        paymentAmountArgs = [balance, interestRate, paymentAmount, paymentFrequency]
+        paymentAmountArgs = [
+            balance, interestRate, paymentAmount, paymentFrequency
+        ]
         if all(i is not None and len(i) > 0 for i in paymentAmountArgs):
-            # If the user has entered a balance, rate, payment amount, and payment 
-            # frequency...
+            # If the user has entered a balance, rate, payment amount, and 
+            # payment frequency...
             days = {'Monthly': 31, 'Fortnightly': 14, 'Weekly': 7}
-            periodInterest = float(balance) * float(interestRate) * (days[paymentFrequency]/36500)
+            periodInterest = (
+                float(balance) 
+                * float(interestRate) 
+                * (days[paymentFrequency]/36500)
+            )
             if periodInterest > float(paymentAmount):
-                # And if the payment amount won't cover the interest amount that 
-                # accrues based on the selected frequency, disable the add debt 
-                # button and display the Payment Amount invalid feedback.
+                # And if the payment amount won't cover the interest amount 
+                # that accrues based on the selected frequency, disable the 
+                # add debt button and display the Payment Amount invalid 
+                # feedback.
                 return True, False, True, False
             if float(balance) < float(paymentAmount):
                 return False, True, True, False
@@ -113,8 +127,8 @@ def register_callbacks(app):
         args = [name, balance, interestRate, paymentAmount, 
             paymentFrequency, nextPaymentDate]
         if all(i is not None for i in args):
-            # If the user has filled in all the fields properly, enable the add 
-            # debt button.
+            # If the user has filled in all the fields properly, enable the 
+            # add debt button.
             return False, False, False, True
         else:
             # If the user has not filled in all the fields with valid entries, 
@@ -122,10 +136,10 @@ def register_callbacks(app):
             return False, False, True, False
 
     @app.callback(
-            Output('addDebtFormCollapse', 'opened'),
-            Input('openAddDebtFormButton', "n_clicks"),
-            State('addDebtFormCollapse', 'opened'),
-            prevent_initial_call = True
+        Output('addDebtFormCollapse', 'opened'),
+        Input('openAddDebtFormButton', "n_clicks"),
+        State('addDebtFormCollapse', 'opened'),
+        prevent_initial_call = True
     )
     def toggleAddDebtForm(n_clicks, is_open):
         if is_open:
@@ -134,10 +148,10 @@ def register_callbacks(app):
             return True
 
     @app.callback(
-            Output({'type': 'editDebtCollapse', 'index': MATCH}, 'opened'),
-            Input({'type': 'openEditDebtFormButton', 'index': MATCH}, 'n_clicks'),
-            State({'type': 'editDebtCollapse', 'index': MATCH}, 'opened'),
-            prevent_initial_call = True
+        Output({'type': 'editDebtCollapse', 'index': MATCH}, 'opened'),
+        Input({'type': 'openEditDebtFormButton', 'index': MATCH}, 'n_clicks'),
+        State({'type': 'editDebtCollapse', 'index': MATCH}, 'opened'),
+        prevent_initial_call = True
     )
     def toggleEditDebtForm(n_clicks, is_open):
         if is_open:
@@ -146,10 +160,10 @@ def register_callbacks(app):
             return True
 
     @app.callback(
-            Output('makePlanFormCollapse', 'opened'),
-            Input('openMakePlanFormButton', "n_clicks"),
-            State('makePlanFormCollapse', 'opened'),
-            prevent_initial_call = True
+        Output('makePlanFormCollapse', 'opened'),
+        Input('openMakePlanFormButton', "n_clicks"),
+        State('makePlanFormCollapse', 'opened'),
+        prevent_initial_call = True
     )
     def toggleMakePlanForm(n_clicks, is_open):
         if is_open:
@@ -162,7 +176,7 @@ def register_callbacks(app):
             Output('amortizations-store', 'data'),
             Output('debt-details-store', 'data'),
             Output('amortizationSchedule', 'children'),
-            Output('debtDetailsView', 'children'),
+            Output('debtCardsContainer', 'children'),
             Output('addDebtButton', 'disabled', allow_duplicate=True),
             Output('addDebtButton', 'n_clicks'),
             Output('name', 'value'),
@@ -200,7 +214,7 @@ def register_callbacks(app):
         currentDebtIndex = n_clicks - 1
 
         debtColor = c.colorOrder[currentDebtIndex % len(c.colorOrder)]
-        lighterDebtColor = c.lighterColorOrder[currentDebtIndex % len(c.lighterColorOrder)]
+        lighterDebtColor = h.lightenHexColor(debtColor, amount=0.5)
 
         amortObject = b.Amortization(
             name=name, accountType='personal', balance=float(balance), 
@@ -236,7 +250,7 @@ def register_callbacks(app):
             html.Hr()],
             id={'type': 'amortizationCards', 'index': currentDebtIndex})
         
-        # Add to amortizations store data (instead of appState.amortizations.append)
+        # Add to amortizations store data
         updated_amortizations = amortizations_data.copy()
         updated_amortizations.append(amortizationCard)
 
@@ -310,17 +324,6 @@ def register_callbacks(app):
             'card': debtDetailsCard
         }
 
-        # debtDetails[currentDebtIndex] = {
-        #     'name': name,
-        #     'balance': balance,
-        #     'rate': rate,
-        #     'paymentAmount': paymentAmount,
-        #     'frequency': frequency,
-        #     'nextPaymentDate': nextPaymentDate,
-        #     'amortization': amortizationCard,
-        #     'traces': traces,
-        #     'color': debtColor}
-
         fig = go.Figure(figDict)
 
         fig.add_trace(go.Scatter(
@@ -340,194 +343,3 @@ def register_callbacks(app):
         return (fig, updated_amortizations, updated_debt_details, 
                 updated_amortizations, debt_detail_cards, True, n_clicks, 
                 '', '', '', '', '', None)
-
-
-    # Callback to update the debt details view when store data changes
-    @app.callback(
-        Output('debtDetailsView', 'children', allow_duplicate=True),
-        Input('debt-details-store', 'data'),
-        prevent_initial_call=True
-    )
-    def update_debt_details_view(debt_details_data):
-        """Update the debt details view when store data changes"""
-        if not debt_details_data:
-            # Return the initial add debt UI
-            from state import AppState
-            return AppState.get_add_debt_ui()
-        
-        debt_detail_cards = []
-        for debt_index, debt_data in debt_details_data.items():
-            if 'card' in debt_data:
-                debt_detail_cards.append(debt_data['card'])
-        
-        # Add the "Add new debt" button at the beginning
-        from state import AppState
-        add_debt_ui = AppState.get_add_debt_ui()
-        return [add_debt_ui] + debt_detail_cards
-
-    # Callback to update the amortization schedule when store data changes  
-    @app.callback(
-        Output('amortizationSchedule', 'children', allow_duplicate=True),
-        Input('amortizations-store', 'data'),
-        prevent_initial_call=True
-    )
-    def update_amortization_schedule(amortizations_data):
-        """Update the amortization schedule when store data changes"""
-        if not amortizations_data:
-            return []
-        return amortizations_data
-
-    # ...existing code...
-
-    # @app.callback(
-    #         Output('payoffGraph', 'figure'),
-    #         Output('amortizationSchedule', 'children'),
-    #         Output('debtDetailsView', 'children'),
-    #         Output({'type': 'amortizationCards', 'index': MATCH}, 'children'), # NEW
-    #         Output({'type': 'debtCards', 'index': MATCH}, 'children'), # NEW
-    #         Output({'type': 'editDebtButton', 'index': MATCH}, 'disabled', allow_duplicate = True),
-    #         Output({'type': 'editNameInput', 'index': MATCH}, 'value'),
-    #         Output({'type': 'editBalanceInput', 'index': MATCH}, 'value'),
-    #         Output({'type': 'editInterestRate', 'index': MATCH}, 'value'),
-    #         Output({'type': 'editPaymentAmount', 'index': MATCH}, 'value'),
-    #         Output({'type': 'editPaymentFrequency', 'index': MATCH}, 'value'),
-    #         Output({'type': 'editNextPaymentDate', 'index': MATCH}, 'value'),
-    #         [
-    #             State({'type': 'editNameInput', 'index': MATCH}, 'value'),
-    #             State({'type': 'editBalanceInput', 'index': MATCH}, 'value'),
-    #             State({'type': 'editInterestRateInput', 'index': MATCH}, 'value'),
-    #             State({'type': 'editPaymentAmountInput', 'index': MATCH}, 'value'),
-    #             State({'type': 'editPaymentFrequencyInput', 'index': MATCH}, 'value'),
-    #             State({'type': 'editNextPaymentDateInput', 'index': MATCH}, 'value'),
-    #             Input({'type': 'editDebtButton', 'index': MATCH}, 'n_clicks'),
-    #             Input({'type': 'editDebtButton', 'index': MATCH}, 'id')
-    #         ],
-    #         prevent_initial_call = True,
-    # )
-    # def refreshGraphAndAmortizationTableAfterDebtEdit(
-    #     name, balance, rate, paymentAmount, frequency, nextPaymentDate, 
-    #     n_clicks, idDict):
-    #     """
-    #     Makes necessary changes when an existing debt is edited, i.e.
-
-    #     1) Deletes the old trace on the graph and adds a new one with the modified 
-    #        debt parameters
-    #     2) Modifies the debt details card to reflect updated values
-    #     3) Deletes the old amortization schedule and replaces it with one that 
-    #        reflects the updated debt parameters
-    #     """
-    #     currentDebtIndex = idDict['index']
-
-    #     debtColor = colorOrder[len(debtDetails)%len(colorOrder)]
-    #     lighterDebtColor = lighterColorOrder[len(debtDetails)%len(lighterColorOrder)]
-
-    #     amortObject = b.Amortization(
-    #         name = name, accountType = 'personal', balance = float(balance), 
-    #         interestRate = float(rate), interestCalculationMethod = 'simple', 
-    #         paymentFrequency = frequency, nextPaymentDate = nextPaymentDate, 
-    #         paymentAmount = float(paymentAmount)
-    #     )
-    #     amortObject.getAmortization()
-
-    #     x = list(amortObject.amortization['Payment Date'])
-    #     y = list(amortObject.amortization['Balance Remaining'])
-    #     traces = {'x': x, 'y': y}
-
-    #     amortizationCard = html.Div([
-    #         dbc.Card([
-    #             dbc.CardBody([
-    #                 dbc.Row(html.H3(name, className = 'card_title')),
-    #                 dbc.Row(dbc.Table.from_dataframe(
-    #                     amortObject.prettyAmortization, striped = True, 
-    #                     bordered = True, hover = True, style = {'width': '100vw'}))
-    #             ])
-    #             ], color = debtColor),
-    #         html.Hr()],
-    #         id = {'type': 'amortizationCards', 'index': currentDebtIndex})
-    #     amortizations.append(amortizationCard)
-
-    #     editDebtControls = dbc.Card([
-    #     dbc.CardBody([
-    #         html.H3("Edit Debt", className = 'card_title'),
-    #         html.P("All fields are required.", style = {'fontSize': 14}),
-    #         dbc.Form([
-    #             createDebtNameInput(currentDebtIndex, name), 
-    #             createBalanceInput(currentDebtIndex, balance),
-    #             createInterestRateInput(currentDebtIndex, rate), 
-    #             createPaymentAmountInput(currentDebtIndex, paymentAmount),
-    #             createPaymentFrequencyInput(currentDebtIndex, frequency), 
-    #             createNextPaymentDateInput(currentDebtIndex, nextPaymentDate)
-    #             ]),
-    #         html.Hr(),
-    #         createAddOrEditDebtButton(currentDebtIndex)])])
-
-    #     debtDetailsCard = html.Div([
-    #         dbc.Card([
-    #             dbc.CardBody([
-    #                 dbc.Row([
-    #                     dbc.Col(html.H4(
-    #                         name, 
-    #                         className = 'card_title'), width = 10),
-    #                     dbc.Col(
-    #                         dmc.ActionIcon(
-    #                             DashIconify(icon = 'iconoir:edit', width = 30),
-    #                             size = 'lg',
-    #                             n_clicks = 0,
-    #                             color = lighterDebtColor,
-    #                             variant = 'subtle', 
-    #                             id = {
-    #                                 'type': 'openEditDebtFormButton', 
-    #                                 'index': currentDebtIndex
-    #                                 }),
-    #                         width = 2)
-    #                     ]), 
-    #                 dbc.Row([
-    #                     dbc.Col(f"Balance: ${float(balance):,.2f}"), 
-    #                     dbc.Col(f"Rate: {float(rate):,.2f}%")], 
-    #                     style = {'font-size': 12}),
-    #                 dbc.Row([
-    #                     dbc.Col(f"Payment Amount: ${float(paymentAmount):,.2f}"), 
-    #                     dbc.Col(f"{frequency} Payments")],
-    #                     style = {'font-size': 12}),
-    #                 dbc.Row(
-    #                     dbc.Col(f"Next Payment Date: {nextPaymentDate}"),
-    #                     style = {'font-size': 12})
-    #                 ])], 
-    #             color = debtColor),
-    #         html.Hr(),
-    #         dmc.Drawer(
-    #             editDebtControls, 
-    #             id = {'type': 'editDebtCollapse', 'index': currentDebtIndex},
-    #             opened = False
-    #         )], 
-    #         id = {'type': 'debtCards', 'index': currentDebtIndex})
-    
-    #     addDebtDetails.append(debtDetailsCard)
-
-    #     debtDetails[currentDebtIndex] = {
-    #         'name': name,
-    #         'balance': balance,
-    #         'rate': rate,
-    #         'paymentAmount': paymentAmount,
-    #         'frequency': frequency,
-    #         'nextPaymentDate': nextPaymentDate,
-    #         'amortization': amortizationCard,
-    #         'traces': traces,
-    #         'color': debtColor}
-
-    #     fig = go.Figure(layout = go.Layout(
-    #         template = 'plotly_dark',
-    #         yaxis_tickprefix = '$',
-    #         yaxis_tickformat = ',.2f'))
-    
-    #     debtCount = 0
-    #     for item in debtDetails.keys():
-    #         fig.add_trace(go.Scatter(
-    #             x = debtDetails[item]['traces']['x'], 
-    #             y = debtDetails[item]['traces']['y'],
-    #             line = {'color': colorOrder[debtCount%len(colorOrder)]},
-    #             name = debtDetails[item]['name']))
-    #         debtCount += 1
-
-    #     currentDebtIndex += 1
-    #     return fig, amortizations, addDebtDetails, True, '', '', '', '', '', None

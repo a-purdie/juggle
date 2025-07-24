@@ -4,7 +4,7 @@ from dash import Dash, html, dcc, _dash_renderer
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express.colors as color
-from state import AppState
+from utils import constants as c
 from components import callbacks as cb
 
 externalStylesheets = [
@@ -113,7 +113,7 @@ planTypeInfo = [
     "Like avalanche, only the extra payments go to the debt with the "
     "lowest balance. This method costs more, but some people "
     "appreciate the psychological boost of paying off entire accounts "
-    "faster."), size = 'sm'),
+    "faster at the beginning."), size = 'sm'),
     dmc.Text("Minimum Payments Only", fw = 700),
     dmc.Text((
     "Pay only the minimum amount due on each debt. When an account is paid "
@@ -201,9 +201,41 @@ df = pd.DataFrame(columns = ['paymentDate', 'paymentAmount', 'interestAmount',
 amortizationViewContent = dbc.Col(
     [], id='amortizationSchedule', width=12)
 
-debtDetailsViewContent = dbc.Col(
-    AppState.get_add_debt_ui(), id='debtDetailsView', width=12, 
-    style={'maxHeight': '80vh', 'overflow': 'scroll'})
+#################################################
+## DEBT DETAILS AND PLAN DETAILS VIEW CONTENT ###
+#################################################
+
+# Separate container for debt cards
+debtCardsContainer = html.Div(
+    [], 
+    id='debtCardsContainer',
+    style={'maxHeight': '70vh', 'overflow': 'scroll'}
+)
+
+# Main debt details view with fixed button and scrollable cards area
+debtDetailsViewContent = dbc.Col([
+    # Fixed "Add new debt" button at the top
+    dbc.Row(
+        dbc.Button(
+            "Add new debt",
+            id='openAddDebtFormButton',
+            className='mb-1',
+            n_clicks=0,
+            size='sm', 
+            outline=True, 
+            color='info'
+        ), 
+        className='col-6 mx-auto p-3'
+    ),
+    # Debt cards container below the button
+    debtCardsContainer,
+    # Drawer for add debt form
+    dmc.Drawer(
+        c.addDebtControls, 
+        id='addDebtFormCollapse', 
+        opened=False
+    )
+])
 
 planDetailsViewContent = dbc.Col(
     addPlanDetails, id='planDetailsView', width=12)
@@ -213,9 +245,8 @@ planDetailsViewContent = dbc.Col(
 #################################################
 
 app.layout = dmc.MantineProvider([
-    # Add dcc.Store components for state management
-    *AppState.get_store_components(),
-    
+    dcc.Store(id='amortizations-store', data=[]),
+    dcc.Store(id='debt-details-store', data={}),
     # Main app container
     dbc.Container([
         html.H1("indentured.services", style={'font-family': 'Chonburi'}),
@@ -239,8 +270,6 @@ app.layout = dmc.MantineProvider([
         ])
     ],
     forceColorScheme='dark')
-
-
 
 #################################################
 ###################### RUN ######################

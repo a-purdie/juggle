@@ -4,6 +4,8 @@ import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
 from utils import helpers as h
 
+# The colorOrder determines the order of colors used in the payoff graph and 
+# amortization cards as debts are added
 colorOrder = color.qualitative.Dark24
 lighterColorOrder = [
     '#d5e9fa', '#f9dfeb', '#c9f6c9'
@@ -25,4 +27,6 @@ addDebtControls = dbc.Card([
         [nameInput, balanceInput, interestRateInput, paymentAmountInput, 
         paymentFrequencyInput, nextPaymentDateInput]),
         html.Hr(),
-        addDebtButton])])
+        addDebtButton
+    ])
+])

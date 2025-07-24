@@ -5,7 +5,6 @@ from utils import constants as c
 
 class AppState:
     def __init__(self):
-        # Remove instance variables since we'll use dcc.Store instead
         pass
     
     @staticmethod

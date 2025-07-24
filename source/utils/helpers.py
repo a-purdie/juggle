@@ -144,3 +144,19 @@ def createAddOrEditDebtButton(debtIndex = None):
         className = 'col-8 mx-auto')
     
     return debtButton
+
+def lightenHexColor(hexCode, amount=0.5):
+    """
+    From a hex code, convert to RGB, blend with white, and return the 
+    lightened color's hex code.
+    """
+    hexCode = hexCode.lstrip('#')
+    r = int(hexCode[0:2], 16)
+    g = int(hexCode[2:4], 16)
+    b = int(hexCode[4:6], 16)
+
+    r = int(r + (255 - r) * amount)
+    g = int(g + (255 - g) * amount)
+    b = int(b + (255 - b) * amount)
+
+    return '#{:02x}{:02x}{:02x}'.format(r, g, b)
