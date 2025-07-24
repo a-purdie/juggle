@@ -4,29 +4,29 @@ import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
 from utils import helpers as h
 
-# The colorOrder determines the order of colors used in the payoff graph and 
+# The color_order determines the order of colors used in the payoff graph and 
 # amortization cards as debts are added
-colorOrder = color.qualitative.Dark24
-lighterColorOrder = [
+color_order = color.qualitative.Dark24
+lighter_color_order = [
     '#d5e9fa', '#f9dfeb', '#c9f6c9'
 ]
 
-nameInput = h.createDebtNameInput()
-balanceInput = h.createBalanceInput()
-interestRateInput = h.createInterestRateInput()
-paymentAmountInput = h.createPaymentAmountInput()
-paymentFrequencyInput = h.createPaymentFrequencyInput()
-nextPaymentDateInput = h.createNextPaymentDateInput()
-addDebtButton = h.createAddOrEditDebtButton()
+name_input = h.create_debt_name_input()
+balance_input = h.create_balance_input()
+interest_rate_input = h.create_interest_rate_input()
+payment_amount_input = h.create_payment_amount_input()
+payment_frequency_input = h.create_payment_frequency_input()
+next_payment_date_input = h.create_next_payment_date_input()
+add_debt_button = h.create_add_or_edit_debt_button()
 
-addDebtControls = dbc.Card([
+add_debt_controls = dbc.Card([
     dbc.CardBody([
-        html.H3("Add Debt", className = 'card_title'),
-        html.P("All fields are required.", style = {'fontSize': 14}),
+        html.H3("Add Debt", className='card_title'),
+        html.P("All fields are required.", style={'fontSize': 14}),
         dbc.Form(
-        [nameInput, balanceInput, interestRateInput, paymentAmountInput, 
-        paymentFrequencyInput, nextPaymentDateInput]),
+        [name_input, balance_input, interest_rate_input, payment_amount_input, 
+        payment_frequency_input, next_payment_date_input]),
         html.Hr(),
-        addDebtButton
+        add_debt_button
     ])
 ])

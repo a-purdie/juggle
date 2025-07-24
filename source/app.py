@@ -7,7 +7,7 @@ import plotly.express.colors as color
 from utils import constants as c
 from components import callbacks as cb
 
-externalStylesheets = [
+external_stylesheets = [
     "https://fonts.googleapis.com/css2?family=Chonburi&display=swap",
     "/assets/bootstrap.css",
     "/assets/fontawesome/css/fontawesome.css",
@@ -16,11 +16,11 @@ externalStylesheets = [
     dmc.styles.DATES
 ]
 
-app = Dash(external_stylesheets = externalStylesheets)
+app = Dash(external_stylesheets=external_stylesheets)
 _dash_renderer._set_react_version('18.2.0')
 app.title = 'indentured.services - Debt Calculator'
 
-# debtDetails is a dictionary that holds all the debts that have been added by 
+# debt_details is a dictionary that holds all the debts that have been added by 
 # the user so far. Its keys are sequential, non-negative integers that increment 
 # by one when a new debt is added, and its values are also dictionaries with three
 # key-value pairs. The inner dictionary's keys are "name", "amortization" 
@@ -82,101 +82,101 @@ app.title = 'indentured.services - Debt Calculator'
 plans = {}
 
 # Specifies the order of color assignment of the lines and debt cards
-colorOrder = color.qualitative.Dark24
-lighterColorOrder = [
+color_order = color.qualitative.Dark24
+lighter_color_order = [
     '#d5e9fa', '#f9dfeb', '#c9f6c9'
 ]
-debtCount = 0
+debt_count = 0
 
 #################################################
 ######### ADD PLANS FORM AND CONTROLS ###########
 #################################################
 
-planNameInput = dbc.Row([
-    dbc.Label("Plan Name", html_for = 'planName', width = 5, style = {'font-size': 16}),
-    dbc.Col(dbc.Input(id = 'planName'), width = 7)], className = 'mb-1')
+plan_name_input = dbc.Row([
+    dbc.Label("Plan Name", html_for='plan_name', width=5, style={'font-size': 16}),
+    dbc.Col(dbc.Input(id='plan_name'), width=7)], className='mb-1')
 
-infoIcon = html.I(
-    className = 'fa-solid fa-circle-info', 
-    style = {'color': '#aaaaaa'})
+info_icon = html.I(
+    className='fa-solid fa-circle-info', 
+    style={'color': '#aaaaaa'})
 
-planTypeInfo = [
-    dmc.Text("Avalanche", fw = 700), 
+plan_type_info = [
+    dmc.Text("Avalanche", fw=700), 
     dmc.Text((
     "Favors debts with the highest interest rate. When an account is paid off, "
     "the minimum payment used to pay that account is allocated to the unpaid "
     "debt with the highest interest rate. This method costs the least and pays "
-    "off debt the fastest."), size = 'sm'),
-    dmc.Text("Snowball", fw = 700),
+    "off debt the fastest."), size='sm'),
+    dmc.Text("Snowball", fw=700),
     dmc.Text((
     "Favors debts with the lowest balance. "
     "Like avalanche, only the extra payments go to the debt with the "
     "lowest balance. This method costs more, but some people "
     "appreciate the psychological boost of paying off entire accounts "
-    "faster at the beginning."), size = 'sm'),
-    dmc.Text("Minimum Payments Only", fw = 700),
+    "faster at the beginning."), size='sm'),
+    dmc.Text("Minimum Payments Only", fw=700),
     dmc.Text((
     "Pay only the minimum amount due on each debt. When an account is paid "
     "off, the minimum payment used to pay that account is not allocated to any "
     "other unpaid debt. This method takes the longest, costs the most, and "
-    "isn't generally recommended."), size = 'sm')]
+    "isn't generally recommended."), size='sm')]
 
-planTypeRadioOptions = [
+plan_type_radio_options = [
     {"label": "Avalanche", "value": 'avalanche'},
     {"label": "Snowball", "value": 'snowball'},
     {"label": "Minimum Payments Only", "value": 'minimum'}]
 
 
-planTypeRadio = dbc.Row([
+plan_type_radio = dbc.Row([
         dbc.Col(dmc.HoverCard(
-            width = 300,
-            position = 'right',
-            transitionProps = {
+            width=300,
+            position='right',
+            transitionProps={
                 "transition": "slide-right", 
                 "duration": 400,
                 "timingFunction": "ease"},
-            withArrow = True,
-            children = [
-                dmc.HoverCardTarget(["Plan Type ", infoIcon]),
-                dmc.HoverCardDropdown(planTypeInfo)
+            withArrow=True,
+            children=[
+                dmc.HoverCardTarget(["Plan Type ", info_icon]),
+                dmc.HoverCardDropdown(plan_type_info)
             ]
-        ), width = 5),
+        ), width=5),
     dbc.Col(dbc.RadioItems(
-            options = planTypeRadioOptions,
-            id = "planType"
-        ), width = 7)
+            options=plan_type_radio_options,
+            id="plan_type"
+        ), width=7)
 ])
 
-addPlanButton = dbc.Row([
-    dbc.Button("Add Plan", id = 'addPlan', n_clicks = 0, disabled = True)],
-    className = 'col-8 mx-auto')
+add_plan_button = dbc.Row([
+    dbc.Button("Add Plan", id='add_plan', n_clicks=0, disabled=True)],
+    className='col-8 mx-auto')
 
-addPlanControls = dbc.Card([
+add_plan_controls = dbc.Card([
     dbc.CardBody([
-        html.H3("Make a Plan", className = 'card_title'),
+        html.H3("Make a Plan", className='card_title'),
         dbc.Form(
-        [planNameInput, planTypeRadio]),
+        [plan_name_input, plan_type_radio]),
         html.Hr(),
-        addPlanButton])])
+        add_plan_button])])
 
 #################################################
 ################## PLANS TAB ####################
 #################################################
 
-addPlanDetails = [
+add_plan_details = [
     html.Div(
         [dbc.Row(
             dbc.Button(
                 "Make a plan",
-                id = 'openMakePlanFormButton',
-                className = 'mb-1',
-                n_clicks = 0,
-                size = 'sm', outline = True, color = 'info'
-            ), className = 'col-6 mx-auto p-3'),
+                id='open_make_plan_form_button',
+                className='mb-1',
+                n_clicks=0,
+                size='sm', outline=True, color='info'
+            ), className='col-6 mx-auto p-3'),
             dmc.Drawer(
-                addPlanControls, 
-                id = 'makePlanFormCollapse', 
-                opened = False)
+                add_plan_controls, 
+                id='make_plan_form_collapse', 
+                opened=False)
         ]),
     html.Br()
     ]
@@ -185,40 +185,40 @@ addPlanDetails = [
 ####### GRAPH AND SCHEDULE VIEW CONTENT #########
 #################################################
 
-graphViewContent = dbc.Col(dcc.Graph(
-        figure = go.Figure(
-            data = go.Scatter(), 
-            layout = go.Layout(
-                template = 'plotly_dark',
-                yaxis_tickprefix = '$', yaxis_tickformat = ',.2f')),
-        id = 'payoffGraph', 
-        style = {'width': '72vw', 'height': '70vh'}), 
-    width = 8)
+graph_view_content = dbc.Col(dcc.Graph(
+        figure=go.Figure(
+            data=go.Scatter(), 
+            layout=go.Layout(
+                template='plotly_dark',
+                yaxis_tickprefix='$', yaxis_tickformat=',.2f')),
+        id='payoff_graph', 
+        style={'width': '72vw', 'height': '70vh'}), 
+    width=8)
 
-df = pd.DataFrame(columns = ['paymentDate', 'paymentAmount', 'interestAmount', 
+df = pd.DataFrame(columns=['paymentDate', 'paymentAmount', 'interestAmount', 
                 'principalAmount', 'remainingBalance'])
 
-amortizationViewContent = dbc.Col(
-    [], id='amortizationSchedule', width=12)
+amortization_view_content = dbc.Col(
+    [], id='amortization_schedule', width=12)
 
 #################################################
 ## DEBT DETAILS AND PLAN DETAILS VIEW CONTENT ###
 #################################################
 
 # Separate container for debt cards
-debtCardsContainer = html.Div(
+debt_cards_container = html.Div(
     [], 
-    id='debtCardsContainer',
+    id='debt_cards_container',
     style={'maxHeight': '70vh', 'overflow': 'scroll'}
 )
 
 # Main debt details view with fixed button and scrollable cards area
-debtDetailsViewContent = dbc.Col([
+debt_details_view_content = dbc.Col([
     # Fixed "Add new debt" button at the top
     dbc.Row(
         dbc.Button(
             "Add new debt",
-            id='openAddDebtFormButton',
+            id='open_add_debt_form_button',
             className='mb-1',
             n_clicks=0,
             size='sm', 
@@ -228,17 +228,17 @@ debtDetailsViewContent = dbc.Col([
         className='col-6 mx-auto p-3'
     ),
     # Debt cards container below the button
-    debtCardsContainer,
+    debt_cards_container,
     # Drawer for add debt form
     dmc.Drawer(
-        c.addDebtControls, 
-        id='addDebtFormCollapse', 
+        c.add_debt_controls, 
+        id='add_debt_form_collapse', 
         opened=False
     )
 ])
 
-planDetailsViewContent = dbc.Col(
-    addPlanDetails, id='planDetailsView', width=12)
+plan_details_view_content = dbc.Col(
+    add_plan_details, id='plan_details_view', width=12)
 
 #################################################
 #################### LAYOUT #####################
@@ -247,6 +247,16 @@ planDetailsViewContent = dbc.Col(
 app.layout = dmc.MantineProvider([
     dcc.Store(id='amortizations-store', data=[]),
     dcc.Store(id='debt-details-store', data={}),
+    # Hidden div to hold form components so Dash can find them at startup
+    html.Div([
+        html.Div(id='name', style={'display': 'none'}),
+        html.Div(id='balance', style={'display': 'none'}),
+        html.Div(id='interest_rate', style={'display': 'none'}),
+        html.Div(id='payment_amount', style={'display': 'none'}),
+        html.Div(id='payment_frequency', style={'display': 'none'}),
+        html.Div(id='next_payment_date', style={'display': 'none'}),
+        html.Div(id='add_debt_button', style={'display': 'none'})
+    ], style={'display': 'none'}),
     # Main app container
     dbc.Container([
         html.H1("indentured.services", style={'font-family': 'Chonburi'}),
@@ -257,13 +267,13 @@ app.layout = dmc.MantineProvider([
         dbc.Row([
                 dbc.Col(
                     dbc.Tabs([
-                        dbc.Tab(debtDetailsViewContent, label='Debt Details'),
-                        dbc.Tab(planDetailsViewContent, label='Plans')]), 
+                        dbc.Tab(debt_details_view_content, label='Debt Details'),
+                        dbc.Tab(plan_details_view_content, label='Plans')]), 
                     width=3),
                 dbc.Col(
                     dbc.Tabs([
-                        dbc.Tab(graphViewContent, label="Graph View"), 
-                        dbc.Tab(amortizationViewContent, label="Table View")]), 
+                        dbc.Tab(graph_view_content, label="Graph View"), 
+                        dbc.Tab(amortization_view_content, label="Table View")]), 
                         width=9)
                 ]
             )

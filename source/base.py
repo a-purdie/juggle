@@ -23,10 +23,10 @@ class Debt():
     Base class for storing details about individual debts and producing an 
     individual debt's amortization schedule.
     """
-    def __init__(self, name: str, accountType: str,
-                 balance: float, interestRate: float,
-                 interestCalculationMethod: str, paymentFrequency: str,
-                 nextPaymentDate: str, paymentAmount: float):
+    def __init__(self, name: str, account_type: str,
+                 balance: float, interest_rate: float,
+                 interest_calculation_method: str, payment_frequency: str,
+                 next_payment_date: str, payment_amount: float):
         """
         Parameters
         ----------
@@ -67,40 +67,40 @@ class Debt():
             with `paymentFrequency` to determine the series of payment dates 
             all the way until it is paid off.     
 
-        paymentAmount: float
+        payment_amount: float
             The minimum payment due each payment period as specified by the 
-            `paymentFrequency` parameter. If you have to pay $300 per month on 
+            `payment_frequency` parameter. If you have to pay $300 per month on 
             a debt but want to make biweekly payments, then this amount should 
             be $150.    
         """
         self.name = name
-        self.accountType = accountType
+        self.account_type = account_type
         self.balance = balance
-        self.interestRate = interestRate
-        self.interestCalculationMethod = interestCalculationMethod
-        self.paymentFrequency = paymentFrequency
-        self.nextPaymentDate = nextPaymentDate
-        self.paymentAmount = paymentAmount
+        self.interest_rate = interest_rate
+        self.interest_calculation_method = interest_calculation_method
+        self.payment_frequency = payment_frequency
+        self.next_payment_date = next_payment_date
+        self.payment_amount = payment_amount
 
 class Amortization():
     """
     Base class with methods for computing a debt's amortization schedule and 
     storing the schedule in a JSON file for future use.
     """
-    def __init__(self, name: str, accountType: str,
-                 balance: float, interestRate: float,
-                 interestCalculationMethod: str, paymentFrequency: str,
-                 nextPaymentDate: str, paymentAmount: float):
+    def __init__(self, name: str, account_type: str,
+                 balance: float, interest_rate: float,
+                 interest_calculation_method: str, payment_frequency: str,
+                 next_payment_date: str, payment_amount: float):
         
-        self.debt = Debt(name, accountType, balance, interestRate, 
-                    interestCalculationMethod, paymentFrequency, 
-                    nextPaymentDate, paymentAmount)
-
-    def scheduleByAmount(self) -> Iterator[Tuple[int, float, float, float, float]]:
-        amortization_amount = self.debt.paymentAmount
-        frequencyString = self.debt.paymentFrequency
-        adjusted_interest = 0.01 * self.debt.interestRate / \
-            Frequencies.frequencies[frequencyString].value
+        self.debt = Debt(name, account_type, balance, interest_rate, 
+                    interest_calculation_method, payment_frequency,
+                    next_payment_date, payment_amount)
+                    
+    def schedule_by_amount(self) -> Iterator[Tuple[int, float, float, float, float]]:
+        amortization_amount = self.debt.payment_amount
+        frequency_string = self.debt.payment_frequency
+        adjusted_interest = 0.01 * self.debt.interest_rate / \
+            Frequencies.frequencies[frequency_string].value
         balance = self.debt.balance
         number = 0
         self.period = 0
@@ -116,61 +116,62 @@ class Amortization():
                     balance + interest, 0
             yield number, amortization_amount, interest, principal, balance
 
-    def getPaymentDateList(self):
-        firstPaymentDate = datetime.strptime(
-            self.debt.nextPaymentDate, '%Y-%m-%d')
-        currentPaymentDate = firstPaymentDate
-        dateList = [currentPaymentDate]
-        if self.debt.paymentFrequency == 'Weekly':
-            oneWeek = relativedelta(weeks = 1)
+    def get_payment_date_list(self):
+        first_payment_date = datetime.strptime(
+            self.debt.next_payment_date, '%Y-%m-%d')
+        current_payment_date = first_payment_date
+        date_list = [current_payment_date]
+        if self.debt.payment_frequency == 'Weekly':
+            one_week = relativedelta(weeks=1)
             for _ in range(self.period - 1):
-                currentPaymentDate += oneWeek
-                dateList.append(currentPaymentDate)
-        elif self.debt.paymentFrequency == 'Fortnightly':
-            oneFortnight = relativedelta(weeks = 2)
+                current_payment_date += one_week
+                date_list.append(current_payment_date)
+        elif self.debt.payment_frequency == 'Fortnightly':
+            one_fortnight = relativedelta(weeks=2)
             for _ in range(self.period - 1):
-                currentPaymentDate += oneFortnight
-                dateList.append(currentPaymentDate)
-        elif self.debt.paymentFrequency == 'Monthly':
-            oneMonth = relativedelta(months = 1)
-            if firstPaymentDate.day < 29:
+                current_payment_date += one_fortnight
+                date_list.append(current_payment_date)
+        elif self.debt.payment_frequency == 'Monthly':
+            one_month = relativedelta(months=1)
+            if first_payment_date.day < 29:
                 for _ in range(self.period - 1):
-                    currentPaymentDate += oneMonth
-                    dateList.append(currentPaymentDate)
+                    current_payment_date += one_month
+                    date_list.append(current_payment_date)
             else:
-                daysInEachMonth = {
+                days_in_each_month = {
                     1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31,
                     9: 30, 10: 31, 11: 30, 12: 31}
                 for _ in range(self.period - 1):
-                    nextPaymentDate = currentPaymentDate + oneMonth
-                    nextMonthTotalDays = daysInEachMonth[nextPaymentDate.month]
-                    if nextMonthTotalDays >= firstPaymentDate.day:
-                        currentPaymentDate = datetime(
-                            year = nextPaymentDate.year,
-                            month = nextPaymentDate.month,
-                            day = firstPaymentDate.day)
-                    else:
-                        currentPaymentDate = nextPaymentDate
-                    dateList.append(currentPaymentDate)
-        return [dates.strftime('%Y-%m-%d') for dates in dateList]
+                    next_payment_date = current_payment_date + one_month
+                    if next_payment_date.month is not None:  # Check for None
+                        next_month_total_days = days_in_each_month[next_payment_date.month]
+                        if next_month_total_days >= first_payment_date.day:
+                            current_payment_date = datetime(
+                                year=next_payment_date.year,
+                                month=next_payment_date.month,
+                                day=first_payment_date.day)
+                        else:
+                            current_payment_date = next_payment_date
+                        date_list.append(current_payment_date)
+        return [dates.strftime('%Y-%m-%d') for dates in date_list]
 
-    def getAmortization(self):
-        scheduleObject = self.scheduleByAmount()
-        scheduleArray = np.array([])
-        for number, amount, interest, principal, balance in scheduleObject:
-            newRow = np.array([number, amount, interest, principal, balance])
-            if len(scheduleArray) > 0:
-                scheduleArray = np.vstack([scheduleArray, newRow])
+    def generate_amortization(self):
+        schedule_object = self.schedule_by_amount()
+        schedule_array = np.array([])
+        for number, amount, interest, principal, balance in schedule_object:
+            new_row = np.array([number, amount, interest, principal, balance])
+            if len(schedule_array) > 0:
+                schedule_array = np.vstack([schedule_array, new_row])
             else:
-                scheduleArray = newRow
-        scheduleDataFrame = pd.DataFrame(
-            scheduleArray, columns = [
+                schedule_array = new_row
+        schedule_dataframe = pd.DataFrame(
+            schedule_array, columns=[
                 'Payment Date', 'Payment Amount', 'Interest', 
                 'Principal', 'Balance Remaining'])
-        scheduleDataFrame['Payment Date'] = self.getPaymentDateList()
-        self.amortization = scheduleDataFrame
-        prettyScheduleDataFrame = scheduleDataFrame.__deepcopy__()
+        schedule_dataframe['Payment Date'] = self.get_payment_date_list()
+        self.amortization = schedule_dataframe
+        pretty_schedule_dataframe = schedule_dataframe.__deepcopy__()
         for col in ['Payment Amount', 'Interest', 'Principal', 'Balance Remaining']:
-            prettyScheduleDataFrame[col] = prettyScheduleDataFrame[col].map('${:,.2f}'.format)
-        self.prettyAmortization = prettyScheduleDataFrame
+            pretty_schedule_dataframe[col] = pretty_schedule_dataframe[col].map('${:,.2f}'.format)
+        self.pretty_amortization = pretty_schedule_dataframe
         return self.amortization

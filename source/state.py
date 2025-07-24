@@ -22,7 +22,7 @@ class AppState:
             dbc.Row(
                 dbc.Button(
                     "Add new debt",
-                    id='openAddDebtFormButton',
+                    id='open_add_debt_form_button',
                     className='mb-1',
                     n_clicks=0,
                     size='sm', 
@@ -32,8 +32,8 @@ class AppState:
                 className='col-6 mx-auto p-3'
             ),
             dmc.Drawer(
-                c.addDebtControls, 
-                id='addDebtFormCollapse', 
+                c.add_debt_controls, 
+                id='add_debt_form_collapse', 
                 opened=False
             )
         ])
@@ -49,4 +49,4 @@ def get_initial_debt_details():
 
 # Create instance for backwards compatibility (if needed temporarily)
 # Remove this once you update all imports in other files
-appState = AppState()
+app_state = AppState()
