@@ -1,7 +1,8 @@
 import dash_bootstrap_components as dbc
 from datetime import datetime
-import base as b
+import source.base as b
 import dash_mantine_components as dmc
+from dash import html
 
 def get_amortization(
         name, account_type, balance, interest_rate, 
@@ -146,7 +147,46 @@ def create_add_or_edit_debt_button(debt_index=None):
     return debt_button
 
 def create_debt_form(mode="add", debt_data=None, debt_index=None):
-    pass
+    """
+    Creates a debt form for both adding and editing debts.
+    """
+    values = {
+        'name': debt_data.get('name', '') if debt_data else '',
+        'balance': debt_data.get('balance', '') if debt_data else '',
+        'rate': debt_data.get('rate', '') if debt_data else '',
+        'payment_amount': debt_data.get('payment_amount', '') if debt_data else '',
+        'frequency': debt_data.get('frequency', '') if debt_data else '',
+        'next_payment_date': debt_data.get('next_payment_date', None) if debt_data else None
+    }
+
+    title = "Edit Debt" if mode == "edit" else "Add Debt"
+    button_text = "Save Changes" if mode == "edit" else "Add Debt"
+
+    form = dbc.Card([
+        dbc.CardBody([
+            html.H3(title, className='card_title'),
+            html.P("All fields are required.", style={'fontSize': 14}),
+            dbc.Form([
+                create_debt_name_input(value=values['name']),
+                create_balance_input(value=values['balance']),
+                create_interest_rate_input(value=values['rate']),
+                create_payment_amount_input(value=values['payment_amount']),
+                create_payment_frequency_input(value=values['frequency']),
+                create_next_payment_date_input(value=values['next_payment_date'])
+            ]),
+            html.Hr(),
+            dbc.Row([
+                dbc.Button(
+                    button_text,
+                    id='submit_debt_form',
+                    n_clicks=0,
+                    disabled=True
+                )
+            ], className='col-8 mx-auto')
+        ])
+    ])
+    
+    return form
 
 def lighten_hex_color(hex_code, amount=0.5):
     """

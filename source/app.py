@@ -4,8 +4,8 @@ from dash import Dash, html, dcc, _dash_renderer
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express.colors as color
-from utils import constants as c
-from components import callbacks as cb
+from source.utils import constants as c
+from source.components import callbacks as cb
 
 external_stylesheets = [
     "https://fonts.googleapis.com/css2?family=Chonburi&display=swap",
@@ -17,6 +17,7 @@ external_stylesheets = [
 ]
 
 app = Dash(external_stylesheets=external_stylesheets)
+app.config.suppress_callback_exceptions = True  # Add this to handle dynamic components
 _dash_renderer._set_react_version('18.2.0')
 app.title = 'indentured.services - Debt Calculator'
 
@@ -205,6 +206,13 @@ amortization_view_content = dbc.Col(
 ## DEBT DETAILS AND PLAN DETAILS VIEW CONTENT ###
 #################################################
 
+debt_form_drawer = dmc.Drawer(
+    id='debt_form_drawer',
+    title="",
+    opened=False,
+    children=[]
+)
+
 # Separate container for debt cards
 debt_cards_container = html.Div(
     [], 
@@ -230,11 +238,7 @@ debt_details_view_content = dbc.Col([
     # Debt cards container below the button
     debt_cards_container,
     # Drawer for add debt form
-    dmc.Drawer(
-        c.add_debt_controls, 
-        id='add_debt_form_collapse', 
-        opened=False
-    )
+    debt_form_drawer
 ])
 
 plan_details_view_content = dbc.Col(
@@ -247,16 +251,7 @@ plan_details_view_content = dbc.Col(
 app.layout = dmc.MantineProvider([
     dcc.Store(id='amortizations-store', data=[]),
     dcc.Store(id='debt-details-store', data={}),
-    # Hidden div to hold form components so Dash can find them at startup
-    html.Div([
-        html.Div(id='name', style={'display': 'none'}),
-        html.Div(id='balance', style={'display': 'none'}),
-        html.Div(id='interest_rate', style={'display': 'none'}),
-        html.Div(id='payment_amount', style={'display': 'none'}),
-        html.Div(id='payment_frequency', style={'display': 'none'}),
-        html.Div(id='next_payment_date', style={'display': 'none'}),
-        html.Div(id='add_debt_button', style={'display': 'none'})
-    ], style={'display': 'none'}),
+    dcc.Store(id='form-state-store', data={'mode': 'add', 'debt_index': None}),
     # Main app container
     dbc.Container([
         html.H1("indentured.services", style={'font-family': 'Chonburi'}),
