@@ -205,7 +205,7 @@ def register_callbacks(app):
         return is_open, "", [], form_state
     
     @app.callback(
-        Output('payoff_graph', 'figure'),
+        # Output('payoff_graph', 'figure'),
         Output('amortizations-store', 'data'),
         Output('debt-details-store', 'data'),
         Output('debt_cards_container', 'children'),
@@ -219,7 +219,7 @@ def register_callbacks(app):
             State('payment_amount', 'value'),
             State('payment_frequency', 'value'),
             State('next_payment_date', 'value'),
-            State('payoff_graph', 'figure'),
+            # State('payoff_graph', 'figure'),
             State('form-state-store', 'data'),
             Input('submit_debt_form', 'n_clicks')
         ],
@@ -227,18 +227,19 @@ def register_callbacks(app):
     )
     def make_graph_and_amortization_table(
         amortizations_data, debt_details_data, name, balance, rate, 
-        payment_amount, frequency, next_payment_date, fig_dict, form_state, n_clicks):
+        payment_amount, frequency, next_payment_date, # fig_dict, 
+        form_state, n_clicks):
         """
         Creates the debt graph and table views.
         """
         # Check if this is an actual button click or just initialization
         ctx = callback_context
         if not ctx.triggered or n_clicks == 0 or n_clicks is None:
-            return no_update, no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update
             
         # Validate that all required form fields have values
         if not all([name, balance, rate, payment_amount, frequency, next_payment_date]):
-            return no_update, no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update
 
         # Initialize store data if None
         if amortizations_data is None:
@@ -268,14 +269,18 @@ def register_callbacks(app):
         )
         amort_object.generate_amortization()
 
-        x = list(amort_object.amortization['Payment Date'])
-        y = list(amort_object.amortization['Balance Remaining'])
-        traces = {'x': x, 'y': y}
+        # x = list(amort_object.amortization['Payment Date'])
+        # y = list(amort_object.amortization['Balance Remaining'])
+        # traces = {'x': x, 'y': y}
 
         amortization_data = {
             'name': name,
             'debt_index': current_debt_index,
             'color': debt_color,
+            'raw_data': {
+                'dates': list(amort_object.amortization['Payment Date']), 
+                'balances': list(amort_object.amortization['Balance Remaining'])
+            },
             'table_data': amort_object.pretty_amortization.to_dict('records'),
             'columns': amort_object.pretty_amortization.columns.tolist()
         }
@@ -290,10 +295,22 @@ def register_callbacks(app):
                 found = True
                 break
 
+        # fig = go.Figure(fig_dict)
+
+        # fig.add_trace(go.Scatter(
+        #     x=x, 
+        #     y=y,
+        #     line={'color': debt_color},
+        #     name=str(current_debt_index)))
+
+        # fig.update_layout(showlegend=False)
+
         # Otherwise append it
         if not found:
             updated_amortizations.append(amortization_data)
         
+
+        print(f"DEBUG: updated_amorts: {updated_amortizations}")
         debt_details_card = html.Div([
             dbc.Card([
                 dbc.CardBody([
@@ -339,20 +356,10 @@ def register_callbacks(app):
             'payment_amount': payment_amount,
             'frequency': frequency,
             'next_payment_date': next_payment_date,
-            'traces': traces,
+            # 'traces': traces,
             'color': debt_color,
             'card': debt_details_card
         }
-
-        fig = go.Figure(fig_dict)
-
-        fig.add_trace(go.Scatter(
-            x=x, 
-            y=y,
-            line={'color': debt_color},
-            name=str(current_debt_index)))
-
-        fig.update_layout(showlegend=False)
 
         # Create list of debt detail cards from the store data
         debt_detail_cards = []
@@ -360,9 +367,56 @@ def register_callbacks(app):
             if 'card' in debt_data:
                 debt_detail_cards.append(debt_data['card'])
 
-        return (fig, updated_amortizations, updated_debt_details, 
+        return (updated_amortizations, updated_debt_details, 
                 debt_detail_cards, False)
+
+        # return (fig, updated_amortizations, updated_debt_details, 
+        #         debt_detail_cards, False)
+
+    @app.callback(
+        Output('payoff_graph', 'figure', allow_duplicate=True),
+        Input('amortizations-store', 'data'),
+        prevent_initial_call=True
+    )
+    def update_payoff_graph(amortizations_data):
+        """Builds the payoff graph from the stored amortization data"""
+        if not amortizations_data:
+            return {
+                'data': [],
+                'layout': {
+                    'template': 'plotly_dark',
+                    'yaxis': {'tickprefix': '$', 'tickformat': ',.2f'},
+                    'title': 'No debts added yet'
+                }
+            }
         
+        # Create a new figure from scratch
+        fig = go.Figure()
+        
+        for amort_data in amortizations_data:
+            name = amort_data.get('name', 'Unknown Debt')
+            debt_color = amort_data.get('color', '#000000')
+            raw_data = amort_data.get('raw_data', {})
+            
+            # Add trace using the raw data (better for numeric operations)
+            fig.add_trace(go.Scatter(
+                x=raw_data.get('dates', []),
+                y=raw_data.get('balances', []),
+                line={'color': debt_color},
+                name=name
+            ))
+        
+        # Configure layout
+        fig.update_layout(
+            template='plotly_dark',
+            yaxis_tickprefix='$',
+            yaxis_tickformat=',.2f',
+            showlegend=False,
+            title='Debt Payoff Timeline'
+        )
+        
+        return fig
+    
     @app.callback(
         Output('amortization_schedule', 'children'),
         Input('amortizations-store', 'data'),
