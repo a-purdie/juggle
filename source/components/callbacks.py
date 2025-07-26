@@ -1,5 +1,5 @@
 from dash import html, callback_context, no_update
-from dash.dependencies import Input, Output, State, MATCH, ALL
+from dash.dependencies import Input, Output, State, ALL
 from dash_iconify import DashIconify
 import dash_mantine_components as dmc
 from source.utils import helpers as h
@@ -8,11 +8,6 @@ import plotly.graph_objects as go
 from source.utils import constants as c
 import source.base as b
 import json
-
-
-#################################################
-################### CALLBACKS ###################
-#################################################
 
 def register_callbacks(app):
     @app.callback(
@@ -119,18 +114,6 @@ def register_callbacks(app):
         
         # All validations passed
         return False, False, False, True
-
-    # @app.callback(
-    #     Output('make_plan_form_collapse', 'opened'),
-    #     Input('open_make_plan_form_button', "n_clicks"),
-    #     State('make_plan_form_collapse', 'opened'),
-    #     prevent_initial_call = True
-    # )
-    # def toggle_make_plan_form(n_clicks, is_open):
-    #     if is_open:
-    #         return False
-    #     else:
-    #         return True
 
     @app.callback(
         Output('debt_form_drawer', 'opened'),
@@ -269,10 +252,6 @@ def register_callbacks(app):
         )
         amort_object.generate_amortization()
 
-        # x = list(amort_object.amortization['Payment Date'])
-        # y = list(amort_object.amortization['Balance Remaining'])
-        # traces = {'x': x, 'y': y}
-
         amortization_data = {
             'name': name,
             'debt_index': current_debt_index,
@@ -295,22 +274,10 @@ def register_callbacks(app):
                 found = True
                 break
 
-        # fig = go.Figure(fig_dict)
-
-        # fig.add_trace(go.Scatter(
-        #     x=x, 
-        #     y=y,
-        #     line={'color': debt_color},
-        #     name=str(current_debt_index)))
-
-        # fig.update_layout(showlegend=False)
-
         # Otherwise append it
         if not found:
             updated_amortizations.append(amortization_data)
         
-
-        print(f"DEBUG: updated_amorts: {updated_amortizations}")
         debt_details_card = html.Div([
             dbc.Card([
                 dbc.CardBody([
