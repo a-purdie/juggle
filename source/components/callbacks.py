@@ -11,8 +11,9 @@ import json
 
 def register_callbacks(app):
     @app.callback(
-        Output('payment_amount', 'invalid'),
-        Output('balance', 'invalid'),
+        Output('payment_amount', 'error'),
+        Output('balance', 'error'),
+        Output('interest_rate', 'error'),
         Output('submit_debt_form', 'disabled'),
         Output('submit_debt_form', 'active'),
         [
@@ -45,6 +46,28 @@ def register_callbacks(app):
         ]
         
         # Validation logic (same for both modes)
+        # Initialize error values
+        payment_amount_error = None
+        balance_error = None
+        interest_rate_error = None
+        
+        # Check if balance and payment_amount are filled to validate their relationship
+        if balance is not None and payment_amount is not None and len(str(balance).strip()) > 0 and len(str(payment_amount).strip()) > 0:
+            # Check if payment exceeds balance
+            if float(balance) < float(payment_amount):
+                # Payment exceeds balance
+                payment_amount_error = "The payment amount exceeds the balance"
+                balance_error = "The payment amount exceeds the balance"
+                
+        # Validate interest rate if provided
+        if interest_rate is not None and len(str(interest_rate).strip()) > 0:
+            # Check if interest rate is within valid range
+            if float(interest_rate) <= 0:
+                interest_rate_error = "Interest rate must be greater than zero"
+            elif float(interest_rate) > 100:
+                interest_rate_error = "Interest rate cannot exceed 100%"
+        
+        # Continue with additional validation if all necessary fields are filled
         if all(i is not None and len(str(i)) > 0 for i in payment_amount_args):
             # Calculate period interest
             days = {'Monthly': 31, 'Fortnightly': 14, 'Weekly': 7}
@@ -57,22 +80,20 @@ def register_callbacks(app):
             # Check if payment covers interest
             if period_interest > float(payment_amount):
                 # Payment doesn't cover interest
-                return True, False, True, False
+                payment_amount_error = "This payment doesn't cover the interest that accrues each period"
+                interest_rate_error = "Payment doesn't cover the interest"
                 
-            # Check if payment exceeds balance
-            if float(balance) < float(payment_amount):
-                # Payment exceeds balance
-                return False, True, True, False
-        else:
+        # If validation fails for missing fields, disable submit button
+        if not all(i is not None and len(str(i).strip()) > 0 for i in payment_amount_args):
             # Not all payment fields filled
-            return False, False, True, False
+            return payment_amount_error, balance_error, interest_rate_error, True, False
         
         # Check all fields are filled
         all_fields = [name, balance, interest_rate, payment_amount, 
                     payment_frequency, next_payment_date]
         if not all(i is not None and str(i).strip() for i in all_fields):
             # Not all fields filled
-            return False, False, True, False
+            return payment_amount_error, balance_error, interest_rate_error, True, False
         
         # Additional check for edit mode - has anything changed?
         if mode == 'edit' and debt_index is not None:
@@ -110,10 +131,14 @@ def register_callbacks(app):
             
             if not has_changed:
                 # No changes made in edit mode
-                return False, False, True, False
+                return payment_amount_error, balance_error, interest_rate_error, True, False
         
-        # All validations passed
-        return False, False, False, True
+        # All validations passed - if we have errors, still disable submit button
+        if payment_amount_error or balance_error or interest_rate_error:
+            return payment_amount_error, balance_error, interest_rate_error, True, False
+        
+        # Everything is valid
+        return None, None, None, False, True
 
     @app.callback(
         Output('debt_form_drawer', 'opened'),
@@ -143,7 +168,6 @@ def register_callbacks(app):
         # Get the triggered component's full prop_id
         triggered_prop_id = ctx.triggered[0]['prop_id']
         triggered_value = ctx.triggered[0]['value']
-        print(f"DEBUG: triggered_prop_id = {triggered_prop_id}, value = {triggered_value}")
 
         # IMPORTANT: If the triggered value is None, don't do anything
         # This prevents callbacks from firing when buttons are first created
@@ -153,7 +177,7 @@ def register_callbacks(app):
         # Add debt button clicked
         if triggered_prop_id == 'open_add_debt_form_button.n_clicks':
             form = h.create_debt_form(mode="add")
-            return True, "Add Debt", form, {'mode': 'add', 'debt_index': None}
+            return True, "", form, {'mode': 'add', 'debt_index': None}
         
         # Edit button clicked - prop_id format will be: {"type":"open_edit_debt_form_button","index":X}.n_clicks
         elif 'open_edit_debt_form_button' in triggered_prop_id:
@@ -165,11 +189,8 @@ def register_callbacks(app):
                 button_dict = json.loads(component_id)
                 debt_index = button_dict['index']
                 
-                print(f"DEBUG: Extracted debt_index = {debt_index}")
-                
                 # Get debt data from store
                 debt_data = debt_details.get(str(debt_index), {})
-                print(f"DEBUG: Debt data = {debt_data}")
                 
                 # Create the form
                 form = h.create_debt_form(
@@ -178,7 +199,7 @@ def register_callbacks(app):
                     debt_index=debt_index
                 )
                 
-                return True, f"Edit {debt_data.get('name', 'Debt')}", form, {'mode': 'edit', 'debt_index': debt_index}
+                return True, "", form, {'mode': 'edit', 'debt_index': debt_index}
             except Exception as e:
                 print(f"ERROR in toggle_debt_form: {e}")
                 import traceback
@@ -285,9 +306,9 @@ def register_callbacks(app):
                         dbc.Col(html.H4(
                             name, 
                             className='card_title'), width=10),
-                        dbc.Col(
+                        dbc.Col([
                             dmc.ActionIcon(
-                                DashIconify(icon='iconoir:edit', width=30),
+                                DashIconify(icon='iconoir:edit', width=20),
                                 size='lg',
                                 n_clicks=0,
                                 color=lighter_debt_color,
@@ -295,8 +316,21 @@ def register_callbacks(app):
                                 id={
                                     'type': 'open_edit_debt_form_button', 
                                     'index': current_debt_index
-                                    }),
-                            width=2)
+                                    }),],
+                            width=1), 
+                        dbc.Col(
+                            dmc.ActionIcon(
+                                DashIconify(icon='iconoir:xmark-circle', width=20),
+                                size='lg',
+                                n_clicks=0,
+                                color='red',
+                                variant='subtle',
+                                id={
+                                    'type': 'delete_debt',
+                                    'index': current_debt_index
+                                    }
+                                ),
+                            width = 1)
                         ]), 
                     dbc.Row([
                         dbc.Col(f"Balance: ${float(balance):,.2f}"), 

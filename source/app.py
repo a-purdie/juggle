@@ -12,6 +12,7 @@ external_stylesheets = [
     "/assets/bootstrap.css",
     "/assets/fontawesome/css/fontawesome.css",
     "/assets/fontawesome/css/solid.css",
+    "/assets/custom.css",
     dmc.styles.ALL,
     dmc.styles.DATES
 ]
@@ -191,10 +192,14 @@ graph_view_content = dbc.Col(dcc.Graph(
             data=go.Scatter(), 
             layout=go.Layout(
                 template='plotly_dark',
-                yaxis_tickprefix='$', yaxis_tickformat=',.2f')),
+                yaxis_tickprefix='$', 
+                yaxis_tickformat=',.2f',
+                margin=dict(l=40, r=40, t=60, b=40) # Reduce margins for more space
+            )),
         id='payoff_graph', 
-        style={'width': '72vw', 'height': '70vh'}), 
-    width=8)
+        style={'width': '100%', 'height': 'calc(95vh - 150px)'}, # Dynamic height based on viewport
+        config={'responsive': True}), 
+    )
 
 df = pd.DataFrame(columns=['paymentDate', 'paymentAmount', 'interestAmount', 
                 'principalAmount', 'remainingBalance'])
@@ -217,7 +222,12 @@ debt_form_drawer = dmc.Drawer(
 debt_cards_container = html.Div(
     [], 
     id='debt_cards_container',
-    style={'maxHeight': '70vh', 'overflow': 'scroll'}
+    style={
+        'maxHeight': 'calc(95vh - 180px)',
+        'overflowY': 'auto',  # Show scrollbar only when its needed
+        'scrollbarWidth': 'thin', # Thinner scrollbar (works in Firefox)
+        'msOverflowStyle': 'none', # Hide scrollbar in IE/Edge
+    }
 )
 
 # Main debt details view with fixed button and scrollable cards area
@@ -261,15 +271,31 @@ app.layout = dmc.MantineProvider([
         html.Hr(),
         dbc.Row([
                 dbc.Col(
-                    dbc.Tabs([
-                        dbc.Tab(debt_details_view_content, label='Debt Details'),
-                        dbc.Tab(plan_details_view_content, label='Plans')]), 
+                    dmc.Tabs(
+                        [
+                            dmc.TabsList([
+                                dmc.TabsTab("Debt Details", value="debt_details"),
+                                dmc.TabsTab("Plans", value="plans"),
+                            ]),
+                            dmc.TabsPanel(debt_details_view_content, value="debt_details"),
+                            dmc.TabsPanel(plan_details_view_content, value="plans"),
+                        ],
+                        value="debt_details"
+                    ), 
                     width=3),
                 dbc.Col(
-                    dbc.Tabs([
-                        dbc.Tab(graph_view_content, label="Graph View"), 
-                        dbc.Tab(amortization_view_content, label="Table View")]), 
-                        width=9)
+                    dmc.Tabs(
+                        [
+                            dmc.TabsList([
+                                dmc.TabsTab("Graph View", value="graph_view"),
+                                dmc.TabsTab("Table View", value="table_view"),
+                            ]),
+                            dmc.TabsPanel(graph_view_content, value="graph_view"),
+                            dmc.TabsPanel(amortization_view_content, value="table_view"),
+                        ],
+                        value="graph_view"
+                    ),
+                    width=9)
                 ]
             )
         ])
@@ -283,5 +309,5 @@ app.layout = dmc.MantineProvider([
 cb.register_callbacks(app)
 
 if __name__ == '__main__':
-    app.run(debug = True)
-    # app.run_server(debug = True, port = 8050, host = "0.0.0.0")
+    # app.run(debug = True)
+    app.run(debug = True, port = 8050, host = "0.0.0.0")

@@ -25,106 +25,131 @@ def check_debt_index(field_name, debt_index):
             }
     return id
 
+def create_form_field_row(label, component):
+    """
+    Creates a consistent two-column row for form fields with label on the left
+    and the input component on the right.
+    """
+    return dbc.Row([
+        dbc.Col(dmc.Text(label, fw=500, size="md"), width=4, className="d-flex align-items-center"),
+        dbc.Col(component, width=8)
+    ], className="mb-2")
+
 def create_debt_name_input(debt_index=None, value=None):
     id = check_debt_index('name', debt_index)
 
-    name_input = dbc.Row([
-    dbc.Label(
-        "Name", 
-        html_for=id, 
-        width=5, 
-        style={'font-size': 16}),
-    dbc.Col(dbc.Input(
+    name_input = create_form_field_row(
+        "Name",
+        dmc.TextInput(
             id=id,
-            value=value), 
-            width=7)], 
-        className='mb-1') 
+            value=value,
+            placeholder="Enter debt name",
+            styles={"input": {"width": "100%"}}
+        )
+    )
     
     return name_input
 
 def create_balance_input(debt_index=None, value=None):
     id = check_debt_index('balance', debt_index)
 
-    balance_input = dbc.Row([
-        dbc.Label(
-            "Balance", 
-            html_for=id, 
-            width=5, 
-            style={'font-size': 16}),
-        dbc.Col(dbc.InputGroup([
-            dbc.InputGroupText("$"), 
-            dbc.Input(id=id, value=value),
-            dbc.FormFeedback(
-                'The payment amount exceeds the balance.', type='invalid'
-            )]), width=7)], className='mb-1')
+    balance_input = create_form_field_row(
+        "Balance",
+        dmc.NumberInput(
+            id=id,
+            value=value,
+            step=10,
+            min=0,
+            max=1000000,  # Maximum value of 1 million
+            placeholder="Enter balance amount",
+            error=None,  # Will be set by callback
+            hideControls=True,  # Hide the increment/decrement controls
+            decimalScale=2,  # Show 2 decimal places
+            fixedDecimalScale=True,  # Always show 2 decimal places
+            prefix="$",  # Add dollar sign prefix
+            styles={"input": {"width": "100%"}}
+        )
+    )
     
     return balance_input
 
 def create_interest_rate_input(debt_index=None, value=None):
     id = check_debt_index('interest_rate', debt_index)
 
-    interest_rate_input = dbc.Row([
-    dbc.Label(
-        "Interest Rate", 
-        html_for=id, 
-        width=5, 
-        style={'font-size': 16}),
-    dbc.Col(dbc.InputGroup([
-        dbc.Input(id=id, value=value), 
-        dbc.InputGroupText('%')]), width=7)], className='mb-1')
+    interest_rate_input = create_form_field_row(
+        "Interest Rate",
+        dmc.NumberInput(
+            id=id,
+            value=value,
+            step=0.1,
+            min=0,
+            max=100,  # Maximum interest rate of 100%
+            placeholder="Enter interest rate",
+            hideControls=True,  # Hide the increment/decrement controls
+            decimalScale=3,  # Allow up to 3 decimal places
+            fixedDecimalScale=False,  # Don't force showing all 3 decimal places
+            suffix="%",  # Add percent sign suffix
+            styles={"input": {"width": "100%"}}
+        )
+    )
 
     return interest_rate_input
 
 def create_payment_amount_input(debt_index=None, value=None):
     id = check_debt_index('payment_amount', debt_index)
 
-    payment_amount_input = dbc.Row([
-        dbc.Label(
-            "Payment Amount", 
-            html_for=id, 
-            width=5, 
-            style={'font-size': 16}),
-        dbc.Col(dbc.InputGroup([
-            dbc.InputGroupText("$"), 
-            dbc.Input(id=id, value=value),
-            dbc.FormFeedback(
-                ('This payment amount does not cover the amount of interest '
-                'that accrues each bill cycle'), 
-                type='invalid')]), width=7)], className='mb-1')
+    payment_amount_input = create_form_field_row(
+        "Payment Amount",
+        dmc.NumberInput(
+            id=id,
+            value=value,
+            step=10,
+            min=0,
+            max=1000000,  # Maximum value of 1 million
+            placeholder="Enter payment amount",
+            error=None,  # Error will be set by callback if needed
+            hideControls=True,  # Hide the increment/decrement controls
+            decimalScale=2,  # Show 2 decimal places
+            fixedDecimalScale=True,  # Always show 2 decimal places
+            prefix="$",  # Add dollar sign prefix
+            styles={"input": {"width": "100%"}}
+        )
+    )
     
     return payment_amount_input
 
 def create_payment_frequency_input(debt_index=None, value=None):
     id = check_debt_index('payment_frequency', debt_index)
     
-    payment_frequency_input = dbc.Row([
-        dbc.Label(
-            "Frequency", 
-            html_for=id, 
-            width=5, 
-            style={'font-size': 16}),
-        dbc.Col(dbc.Select(
-            id=id, value=value,
-            options=[{"label": "Monthly", "value": "Monthly"},
-                     {"label": "Fortnightly", "value": "Fortnightly"},
-                     {"label": "Weekly", "value": "Weekly"}]), 
-            width=7)], className='mb-1')
-
+    payment_frequency_input = create_form_field_row(
+        "Payment Frequency",
+        dmc.Select(
+            id=id,
+            value=value,
+            data=["Monthly", "Fortnightly", "Weekly"],
+            placeholder="Select payment frequency",
+            clearable=False,
+            searchable=True,
+            styles={"input": {"width": "100%"}}
+        )
+    )
+    
     return payment_frequency_input
 
 def create_next_payment_date_input(debt_index=None, value=None):
     id = check_debt_index('next_payment_date', debt_index)
 
-    next_payment_date_input = dbc.Row([
-    dbc.Label(
-        "Next Payment", 
-        html_for=id, 
-        width=5, 
-        style={'font-size': 16}),
-    dbc.Col(dmc.DatePickerInput(
-        id=id, value=value,
-        minDate=datetime.today(),
-        valueFormat='YYYY-MM-DD'), width=7)], className='mb-1')
+    next_payment_date_input = create_form_field_row(
+        "Next Payment Date",
+        dmc.DatePickerInput(
+            id=id, 
+            value=value,
+            minDate=datetime.today(),
+            valueFormat='YYYY-MM-DD',
+            placeholder="Select next payment date",
+            styles={"input": {"width": "100%"}}
+        )
+    )
     
     return next_payment_date_input
 
@@ -164,8 +189,8 @@ def create_debt_form(mode="add", debt_data=None, debt_index=None):
 
     form = dbc.Card([
         dbc.CardBody([
-            html.H3(title, className='card_title'),
-            html.P("All fields are required.", style={'fontSize': 14}),
+            html.H3(title, className='card_title mb-2'),
+            html.P("All fields are required.", style={'fontSize': 14, 'marginBottom': '1rem'}),
             dbc.Form([
                 create_debt_name_input(value=values['name']),
                 create_balance_input(value=values['balance']),
@@ -176,13 +201,18 @@ def create_debt_form(mode="add", debt_data=None, debt_index=None):
             ]),
             html.Hr(),
             dbc.Row([
-                dbc.Button(
-                    button_text,
-                    id='submit_debt_form',
-                    n_clicks=0,
-                    disabled=True
+                dbc.Col(
+                    dmc.Button(
+                        button_text,
+                        id='submit_debt_form',
+                        n_clicks=0,
+                        disabled=True,
+                        size="md"
+                    ),
+                    width={"size": 6, "offset": 3},
+                    className="text-center"
                 )
-            ], className='col-8 mx-auto')
+            ], className='mb-2')
         ])
     ])
     
