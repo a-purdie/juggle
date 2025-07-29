@@ -3,7 +3,6 @@ from dash.dependencies import Input, Output, State, ALL
 from dash_iconify import DashIconify
 import dash_mantine_components as dmc
 from source.utils import helpers as h
-import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 from source.utils import constants as c
 import source.base as b
@@ -300,51 +299,54 @@ def register_callbacks(app):
             updated_amortizations.append(amortization_data)
         
         debt_details_card = html.Div([
-            dbc.Card([
-                dbc.CardBody([
-                    dbc.Row([
-                        dbc.Col(html.H4(
+            dmc.Card([
+                dmc.CardSection([
+                    dmc.Grid([
+                        dmc.GridCol(html.H4(
                             name, 
-                            className='card_title'), width=10),
-                        dbc.Col([
-                            dmc.ActionIcon(
-                                DashIconify(icon='iconoir:edit', width=20),
-                                size='lg',
-                                n_clicks=0,
-                                color=lighter_debt_color,
-                                variant='subtle', 
-                                id={
-                                    'type': 'open_edit_debt_form_button', 
-                                    'index': current_debt_index
-                                    }),],
-                            width=1), 
-                        dbc.Col(
-                            dmc.ActionIcon(
-                                DashIconify(icon='iconoir:xmark-circle', width=20),
-                                size='lg',
-                                n_clicks=0,
-                                color='red',
-                                variant='subtle',
-                                id={
-                                    'type': 'delete_debt',
-                                    'index': current_debt_index
-                                    }
-                                ),
-                            width = 1)
-                        ]), 
-                    dbc.Row([
-                        dbc.Col(f"Balance: ${float(balance):,.2f}"), 
-                        dbc.Col(f"Rate: {float(rate):,.2f}%")], 
-                        style={'font-size': 12}),
-                    dbc.Row([
-                        dbc.Col(f"Payment Amount: ${float(payment_amount):,.2f}"), 
-                        dbc.Col(f"{frequency} Payments")],
-                        style={'font-size': 12}),
-                    dbc.Row(
-                        dbc.Col(f"Next Payment Date: {next_payment_date}"),
-                        style={'font-size': 12})
-                    ])], 
-                color=debt_color),
+                            className='card_title'), span=9),
+                        dmc.GridCol(
+                            dmc.Group([
+                                dmc.ActionIconGroup([
+                                    dmc.ActionIcon(
+                                        DashIconify(icon='iconoir:edit', width=20),
+                                        size='lg',
+                                        n_clicks=0,
+                                        color="blue",
+                                        variant='subtle', 
+                                        id={
+                                            'type': 'open_edit_debt_form_button', 
+                                            'index': current_debt_index
+                                            }),
+                                    dmc.ActionIcon(
+                                        DashIconify(icon='iconoir:xmark-circle', width=20),
+                                        size='lg',
+                                        n_clicks=0,
+                                        color='red',
+                                        variant='subtle',
+                                        id={
+                                            'type': 'delete_debt',
+                                            'index': current_debt_index
+                                            }
+                                        ),
+                                ])
+                            ], justify="flex-end"),
+                            span=3
+                        )
+                    ]), 
+                    dmc.Grid([
+                        dmc.GridCol(dmc.Text(f"Balance: ${float(balance):,.2f}", size="xs"), span=6), 
+                        dmc.GridCol(dmc.Text(f"Rate: {float(rate):,.2f}%", size="xs"), span=6)
+                    ]),
+                    dmc.Grid([
+                        dmc.GridCol(dmc.Text(f"Payment Amount: ${float(payment_amount):,.2f}", size="xs"), span=6), 
+                        dmc.GridCol(dmc.Text(f"{frequency} Payments", size="xs"), span=6)
+                    ]),
+                    dmc.Grid([
+                        dmc.GridCol(dmc.Text(f"Next Payment Date: {next_payment_date}", size="xs"), span=12)
+                    ])
+                ], p="md")
+            ], style={"borderColor": debt_color}, withBorder=True),
             html.Hr()], 
             id={'type': 'debt_cards', 'index': current_debt_index})
         
@@ -441,12 +443,19 @@ def register_callbacks(app):
             
             # Create visual component for each amortization
             amortization_card = html.Div([
-                dbc.Card([
-                    dbc.CardBody([
+                dmc.Card([
+                    dmc.CardSection([
                         html.H4(name, className='card_title'),
                         html.Hr(),
-                        dbc.Table(
-                            [
+                        dmc.Table(
+                            striped="odd",
+                            highlightOnHover=True,
+                            withTableBorder=True,
+                            withColumnBorders=True,
+                            horizontalSpacing="xs",
+                            verticalSpacing="xs",
+                            className="amortization-table",
+                            children=[
                                 html.Thead(
                                     html.Tr([html.Th(col) for col in columns])
                                 ),
@@ -456,10 +465,10 @@ def register_callbacks(app):
                                         for col in columns
                                     ]) for row in table_data
                                 ])
-                            ],
-                            bordered=True, hover=True, responsive=True)
-                        ])
-                    ], color=debt_color),
+                            ]
+                        )
+                    ], p="md")
+                ], style={"borderColor": debt_color}, withBorder=True),
                 html.Hr()],
                 id={'type': 'amortization_cards', 'index': debt_index})
                 

@@ -13,6 +13,7 @@ external_stylesheets = [
     "/assets/fontawesome/css/fontawesome.css",
     "/assets/fontawesome/css/solid.css",
     "/assets/custom.css",
+    "/assets/table-styles.css",
     dmc.styles.ALL,
     dmc.styles.DATES
 ]

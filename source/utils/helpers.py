@@ -1,4 +1,3 @@
-import dash_bootstrap_components as dbc
 from datetime import datetime
 import source.base as b
 import dash_mantine_components as dmc
@@ -203,19 +202,15 @@ def create_debt_form(mode="add", debt_data=None, debt_index=None):
                 create_next_payment_date_input(value=values['next_payment_date'])
             ], gap="xs"),
             html.Hr(),
-            dmc.Grid([
-                dmc.GridCol(
-                    dmc.Button(
-                        button_text,
-                        id='submit_debt_form',
-                        n_clicks=0,
-                        disabled=True,
-                        size="md"
-                    ),
-                    span=6,
-                    offset=3
+            dmc.Group([
+                dmc.Button(
+                    button_text,
+                    id='submit_debt_form',
+                    n_clicks=0,
+                    disabled=True,
+                    size="md"
                 )
-            ], mb="xs")
+            ], justify="center", mb="xs")
         ], p="md")
     ])
     
