@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 import plotly.express.colors as color
 from source.utils import constants as c
 from source.components import callbacks as cb
+from source.utils.helpers import create_plans_coming_soon
 
 external_stylesheets = [
     "https://fonts.googleapis.com/css2?family=Chonburi&display=swap",
@@ -180,29 +181,10 @@ add_plan_controls = dmc.Card([
 ################## PLANS TAB ####################
 #################################################
 
-add_plan_details = [
-    html.Div(
-        [dmc.Grid([
-            dmc.GridCol(
-                dmc.Button(
-                    "Make a plan",
-                    id='open_make_plan_form_button',
-                    variant="outline",
-                    color="blue",
-                    size="sm",
-                    n_clicks=0
-                ),
-                span=6,
-                offset=3,
-                py="md"
-            )]),
-            dmc.Drawer(
-                add_plan_controls, 
-                id='make_plan_form_collapse', 
-                opened=False)
-        ]),
-    html.Br()
-    ]
+
+# Create plan details view with Coming Soon component
+plan_details_view_content = dmc.GridCol(
+    create_plans_coming_soon(), id='plan_details_view', span=12)
 
 #################################################
 ####### GRAPH AND SCHEDULE VIEW CONTENT #########
@@ -276,7 +258,7 @@ debt_details_view_content = dmc.GridCol([
 ])
 
 plan_details_view_content = dmc.GridCol(
-    add_plan_details, id='plan_details_view', span=12)
+    create_plans_coming_soon(), id='plan_details_view', span=12)
 
 #################################################
 #################### LAYOUT #####################

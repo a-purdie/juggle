@@ -2,6 +2,7 @@ from datetime import datetime
 import source.base as b
 import dash_mantine_components as dmc
 from dash import html
+from dash_iconify import DashIconify
 
 def get_amortization(
         name, account_type, balance, interest_rate, 
@@ -231,3 +232,25 @@ def lighten_hex_color(hex_code, amount=0.5):
     b = int(b + (255 - b) * amount)
 
     return '#{:02x}{:02x}{:02x}'.format(r, g, b)
+
+def create_plans_coming_soon():
+    """
+    Creates a simple "Coming Soon" placeholder for the Plans tab
+    """
+    return html.Div([
+        dmc.Center([
+            dmc.Stack([
+                dmc.ThemeIcon(
+                    DashIconify(icon="iconoir:rocket", width=40),
+                    size=80,
+                    radius="xl",
+                    variant="light",
+                    color="blue"
+                ),
+                dmc.Title("Coming Soon", order=2),
+            ], 
+            align="center",
+            gap="md",
+            style={"padding": "20px"})
+        ])
+    ], style={"display": "flex", "justifyContent": "center", "marginTop": "40px"})
