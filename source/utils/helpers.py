@@ -30,10 +30,10 @@ def create_form_field_row(label, component):
     Creates a consistent two-column row for form fields with label on the left
     and the input component on the right.
     """
-    return dbc.Row([
-        dbc.Col(dmc.Text(label, fw=500, size="md"), width=4, className="d-flex align-items-center"),
-        dbc.Col(component, width=8)
-    ], className="mb-2")
+    return dmc.Grid([
+        dmc.GridCol(dmc.Text(label, fw="bold", size="md"), span=4),
+        dmc.GridCol(component, span=8)
+    ], gutter="xs", mb="sm")
 
 def create_debt_name_input(debt_index=None, value=None):
     id = check_debt_index('name', debt_index)
@@ -161,13 +161,16 @@ def create_add_or_edit_debt_button(debt_index=None):
         id = {'type': 'edit_debt_button', 'index': debt_index}
         button_text = "Edit Debt"
 
-    debt_button = dbc.Row([
-        dbc.Button(
-            button_text, 
-            id=id, 
-            n_clicks=0, 
-            disabled=True)],
-        className='col-8 mx-auto')
+    debt_button = dmc.Grid([
+        dmc.GridCol(
+            dmc.Button(
+                button_text, 
+                id=id, 
+                n_clicks=0, 
+                disabled=True),
+            span=8,
+            offset=2)
+    ])
     
     return debt_button
 
@@ -187,21 +190,21 @@ def create_debt_form(mode="add", debt_data=None, debt_index=None):
     title = "Edit Debt" if mode == "edit" else "Add Debt"
     button_text = "Save Changes" if mode == "edit" else "Add Debt"
 
-    form = dbc.Card([
-        dbc.CardBody([
-            html.H3(title, className='card_title mb-2'),
-            html.P("All fields are required.", style={'fontSize': 14, 'marginBottom': '1rem'}),
-            dbc.Form([
+    form = dmc.Card([
+        dmc.CardSection([
+            html.H3(title, className='card_title'),
+            dmc.Text("All fields are required.", size="sm", mt="xs", mb="md"),
+            dmc.Stack([
                 create_debt_name_input(value=values['name']),
                 create_balance_input(value=values['balance']),
                 create_interest_rate_input(value=values['rate']),
                 create_payment_amount_input(value=values['payment_amount']),
                 create_payment_frequency_input(value=values['frequency']),
                 create_next_payment_date_input(value=values['next_payment_date'])
-            ]),
+            ], gap="xs"),
             html.Hr(),
-            dbc.Row([
-                dbc.Col(
+            dmc.Grid([
+                dmc.GridCol(
                     dmc.Button(
                         button_text,
                         id='submit_debt_form',
@@ -209,11 +212,11 @@ def create_debt_form(mode="add", debt_data=None, debt_index=None):
                         disabled=True,
                         size="md"
                     ),
-                    width={"size": 6, "offset": 3},
-                    className="text-center"
+                    span=6,
+                    offset=3
                 )
-            ], className='mb-2')
-        ])
+            ], mb="xs")
+        ], p="md")
     ])
     
     return form

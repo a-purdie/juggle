@@ -94,29 +94,38 @@ debt_count = 0
 ######### ADD PLANS FORM AND CONTROLS ###########
 #################################################
 
-plan_name_input = dbc.Row([
-    dbc.Label("Plan Name", html_for='plan_name', width=5, style={'font-size': 16}),
-    dbc.Col(dbc.Input(id='plan_name'), width=7)], className='mb-1')
+plan_name_input = dmc.Grid([
+    dmc.GridCol(
+        dmc.Text("Plan Name", fw="bold", style={'fontSize': 16}),
+        span=5
+    ),
+    dmc.GridCol(
+        dmc.TextInput(id='plan_name'),
+        span=7
+    )],
+    gutter="md",
+    mb="xs"
+)
 
 info_icon = html.I(
     className='fa-solid fa-circle-info', 
     style={'color': '#aaaaaa'})
 
 plan_type_info = [
-    dmc.Text("Avalanche", fw=700), 
+    dmc.Text("Avalanche", fw="bold"), 
     dmc.Text((
     "Favors debts with the highest interest rate. When an account is paid off, "
     "the minimum payment used to pay that account is allocated to the unpaid "
     "debt with the highest interest rate. This method costs the least and pays "
     "off debt the fastest."), size='sm'),
-    dmc.Text("Snowball", fw=700),
+    dmc.Text("Snowball", fw="bold"),
     dmc.Text((
     "Favors debts with the lowest balance. "
     "Like avalanche, only the extra payments go to the debt with the "
     "lowest balance. This method costs more, but some people "
     "appreciate the psychological boost of paying off entire accounts "
     "faster at the beginning."), size='sm'),
-    dmc.Text("Minimum Payments Only", fw=700),
+    dmc.Text("Minimum Payments Only", fw="bold"),
     dmc.Text((
     "Pay only the minimum amount due on each debt. When an account is paid "
     "off, the minimum payment used to pay that account is not allocated to any "
@@ -129,37 +138,42 @@ plan_type_radio_options = [
     {"label": "Minimum Payments Only", "value": 'minimum'}]
 
 
-plan_type_radio = dbc.Row([
-        dbc.Col(dmc.HoverCard(
+plan_type_radio = dmc.Grid([
+        dmc.GridCol(dmc.HoverCard(
             width=300,
             position='right',
-            transitionProps={
-                "transition": "slide-right", 
-                "duration": 400,
-                "timingFunction": "ease"},
             withArrow=True,
             children=[
                 dmc.HoverCardTarget(["Plan Type ", info_icon]),
                 dmc.HoverCardDropdown(plan_type_info)
             ]
-        ), width=5),
-    dbc.Col(dbc.RadioItems(
-            options=plan_type_radio_options,
-            id="plan_type"
-        ), width=7)
-])
+        ), span=5),
+    dmc.GridCol(dmc.RadioGroup(
+            id="plan_type",
+            children=[
+                dmc.Radio(label="Avalanche", value="avalanche"),
+                dmc.Radio(label="Snowball", value="snowball"),
+                dmc.Radio(label="Minimum Payments Only", value="minimum")
+            ]
+        ), span=7)
+], gutter="md")
 
-add_plan_button = dbc.Row([
-    dbc.Button("Add Plan", id='add_plan', n_clicks=0, disabled=True)],
-    className='col-8 mx-auto')
+add_plan_button = dmc.Grid([
+    dmc.GridCol(
+        dmc.Button("Add Plan", id='add_plan', n_clicks=0, disabled=True),
+        span=8,
+        offset=2
+    )])
 
-add_plan_controls = dbc.Card([
-    dbc.CardBody([
+add_plan_controls = dmc.Card([
+    dmc.CardSection([
         html.H3("Make a Plan", className='card_title'),
-        dbc.Form(
+        dmc.Stack(
         [plan_name_input, plan_type_radio]),
         html.Hr(),
-        add_plan_button])])
+        add_plan_button
+    ], p="md")
+])
 
 #################################################
 ################## PLANS TAB ####################
@@ -167,14 +181,20 @@ add_plan_controls = dbc.Card([
 
 add_plan_details = [
     html.Div(
-        [dbc.Row(
-            dbc.Button(
-                "Make a plan",
-                id='open_make_plan_form_button',
-                className='mb-1',
-                n_clicks=0,
-                size='sm', outline=True, color='info'
-            ), className='col-6 mx-auto p-3'),
+        [dmc.Grid([
+            dmc.GridCol(
+                dmc.Button(
+                    "Make a plan",
+                    id='open_make_plan_form_button',
+                    variant="outline",
+                    color="blue",
+                    size="sm",
+                    n_clicks=0
+                ),
+                span=6,
+                offset=3,
+                py="md"
+            )]),
             dmc.Drawer(
                 add_plan_controls, 
                 id='make_plan_form_collapse', 
@@ -187,7 +207,7 @@ add_plan_details = [
 ####### GRAPH AND SCHEDULE VIEW CONTENT #########
 #################################################
 
-graph_view_content = dbc.Col(dcc.Graph(
+graph_view_content = dmc.GridCol(dcc.Graph(
         figure=go.Figure(
             data=go.Scatter(), 
             layout=go.Layout(
@@ -204,8 +224,8 @@ graph_view_content = dbc.Col(dcc.Graph(
 df = pd.DataFrame(columns=['paymentDate', 'paymentAmount', 'interestAmount', 
                 'principalAmount', 'remainingBalance'])
 
-amortization_view_content = dbc.Col(
-    [], id='amortization_schedule', width=12)
+amortization_view_content = dmc.GridCol(
+    [], id='amortization_schedule', span=12)
 
 #################################################
 ## DEBT DETAILS AND PLAN DETAILS VIEW CONTENT ###
@@ -231,28 +251,31 @@ debt_cards_container = html.Div(
 )
 
 # Main debt details view with fixed button and scrollable cards area
-debt_details_view_content = dbc.Col([
+debt_details_view_content = dmc.GridCol([
     # Fixed "Add new debt" button at the top
-    dbc.Row(
-        dbc.Button(
-            "Add new debt",
-            id='open_add_debt_form_button',
-            className='mb-1',
-            n_clicks=0,
-            size='sm', 
-            outline=True, 
-            color='info'
-        ), 
-        className='col-6 mx-auto p-3'
-    ),
+    dmc.Grid([
+        dmc.GridCol(
+            dmc.Button(
+                "Add new debt",
+                id='open_add_debt_form_button',
+                variant="outline",
+                color="blue",
+                size="sm",
+                n_clicks=0
+            ),
+            span=6,
+            offset=3,
+            py="md"
+        )
+    ]),
     # Debt cards container below the button
     debt_cards_container,
     # Drawer for add debt form
     debt_form_drawer
 ])
 
-plan_details_view_content = dbc.Col(
-    add_plan_details, id='plan_details_view', width=12)
+plan_details_view_content = dmc.GridCol(
+    add_plan_details, id='plan_details_view', span=12)
 
 #################################################
 #################### LAYOUT #####################
@@ -263,14 +286,14 @@ app.layout = dmc.MantineProvider([
     dcc.Store(id='debt-details-store', data={}),
     dcc.Store(id='form-state-store', data={'mode': 'add', 'debt_index': None}),
     # Main app container
-    dbc.Container([
+    dmc.Container([
         html.H1("indentured.services", style={'font-family': 'Chonburi'}),
         html.P(
             "Break the chains of your peonage and claim delicious freedom at last",
             style={'fontSize': 10}),
         html.Hr(),
-        dbc.Row([
-                dbc.Col(
+        dmc.Grid([
+                dmc.GridCol(
                     dmc.Tabs(
                         [
                             dmc.TabsList([
@@ -282,8 +305,8 @@ app.layout = dmc.MantineProvider([
                         ],
                         value="debt_details"
                     ), 
-                    width=3),
-                dbc.Col(
+                    span=3),
+                dmc.GridCol(
                     dmc.Tabs(
                         [
                             dmc.TabsList([
@@ -295,10 +318,13 @@ app.layout = dmc.MantineProvider([
                         ],
                         value="graph_view"
                     ),
-                    width=9)
-                ]
+                    span=9)
+                ],
+                gutter="md"
             )
-        ])
+        ],
+        size="xl",
+        p="md"),
     ],
     forceColorScheme='dark')
 
