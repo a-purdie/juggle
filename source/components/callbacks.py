@@ -373,9 +373,6 @@ def register_callbacks(app):
         return (updated_amortizations, updated_debt_details, 
                 debt_detail_cards, False)
 
-        # return (fig, updated_amortizations, updated_debt_details, 
-        #         debt_detail_cards, False)
-
     @app.callback(
         Output('payoff_graph', 'figure', allow_duplicate=True),
         Input('amortizations-store', 'data'),
@@ -383,19 +380,20 @@ def register_callbacks(app):
     )
     def update_payoff_graph(amortizations_data):
         """Builds the payoff graph from the stored amortization data"""
+        # Create a new figure from scratch using the plotly_dark template
+        fig = go.Figure(layout=go.Layout(template='plotly_dark'))
+        
         if not amortizations_data:
-            return {
-                'data': [],
-                'layout': {
-                    'template': 'plotly_dark',
-                    'yaxis': {'tickprefix': '$', 'tickformat': ',.2f'},
-                    'title': 'No debts added yet'
-                }
-            }
+            # Set a title for the empty state but keep the dark theme
+            fig.update_layout(
+                title='Add a debt to visualize your payoff timeline',
+                yaxis_tickprefix='$',
+                yaxis_tickformat=',.2f',
+                showlegend=False,
+            )
+            return fig
         
-        # Create a new figure from scratch
-        fig = go.Figure()
-        
+        # Add trace for each debt
         for amort_data in amortizations_data:
             name = amort_data.get('name', 'Unknown Debt')
             debt_color = amort_data.get('color', '#000000')
@@ -411,7 +409,6 @@ def register_callbacks(app):
         
         # Configure layout
         fig.update_layout(
-            template='plotly_dark',
             yaxis_tickprefix='$',
             yaxis_tickformat=',.2f',
             showlegend=False,
@@ -475,3 +472,58 @@ def register_callbacks(app):
             amortization_cards.append(amortization_card)
         
         return amortization_cards
+    
+    @app.callback(
+        Output('amortizations-store', 'data', allow_duplicate=True),
+        Output('debt-details-store', 'data', allow_duplicate=True),
+        Output('debt_cards_container', 'children', allow_duplicate=True),
+        Input({'type': 'delete_debt', 'index': ALL}, 'n_clicks'),
+        State('amortizations-store', 'data'),
+        State('debt-details-store', 'data'),
+        prevent_initial_call=True
+    )
+    def delete_debt(delete_clicks, amortizations_data, debt_details_data):
+        """
+        Handles debt deletion when the delete button is clicked.
+        Removes the debt from stores and updates UI components.
+        """
+        ctx = callback_context
+        if not ctx.triggered:
+            return no_update, no_update, no_update
+            
+        try:
+            # Get the triggered component ID
+            triggered_id = ctx.triggered[0]['prop_id'].split('.')[0]
+            
+            # Parse the JSON string to get the debt index
+            button_dict = json.loads(triggered_id)
+            debt_index = button_dict['index']
+            
+            # Check if any clicks happened (only needed for the first initialization)
+            if not any(click and click > 0 for click in delete_clicks):
+                return no_update, no_update, no_update
+            
+            # Remove the debt from amortizations data
+            updated_amortizations = [
+                amort for amort in amortizations_data 
+                if amort.get('debt_index') != debt_index
+            ]
+            
+            # Remove the debt from debt details data
+            updated_debt_details = debt_details_data.copy()
+            if str(debt_index) in updated_debt_details:
+                del updated_debt_details[str(debt_index)]
+            
+            # Create updated list of debt cards
+            debt_cards = []
+            for index, debt_data in updated_debt_details.items():
+                if 'card' in debt_data:
+                    debt_cards.append(debt_data['card'])
+            
+            return updated_amortizations, updated_debt_details, debt_cards
+            
+        except Exception as e:
+            print(f"ERROR in delete_debt: {e}")
+            import traceback
+            traceback.print_exc()
+            return no_update, no_update, no_update
