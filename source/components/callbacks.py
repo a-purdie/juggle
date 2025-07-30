@@ -558,3 +558,14 @@ def register_callbacks(app):
             import traceback
             traceback.print_exc()
             return no_update, no_update, no_update
+        
+    @app.callback(
+        Output("disclaimer_drawer", "opened"),
+        Input("disclaimer_button", "n_clicks"),
+        State("disclaimer_drawer", "opened"),
+        prevent_initial_call=True
+    )
+    def toggle_disclaimer_drawer(n_clicks, is_open):
+        if n_clicks:
+            return not is_open
+        return is_open

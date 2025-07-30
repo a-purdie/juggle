@@ -29,6 +29,33 @@ server = app.server
 _dash_renderer._set_react_version('18.2.0')
 app.title = 'indentured.services - Debt Calculator'
 
+disclaimer_content = [
+    dmc.Title("Disclaimer", order=3, mb="md"), 
+    dmc.Text(
+        "This application does not provide financial advice. The payoff "
+        "graphs, amortization tables, and financial projections provided "
+        "are for informational purposes only. The projections are only "
+        "estimates based on the information you provide and standard " 
+        "financial formulas. They are not guarantees of when or how your "
+        "debt will be paid off.", size="xs"
+    ), 
+    html.Br(),
+    dmc.Text(
+        "Your actual results could vary due to changes in interest rates, "
+        "payment schedules, additional fees assessed by lenders, or any one "
+        "of the myriad other factors not explicitly accounted for by this "
+        "application. Financial decisions should not be made solely on the "
+        "basis of the projections provided here.", size="xs"
+    ), 
+    html.Br(),
+    dmc.Text(
+        "The free services provided by this app are offered as is and are not "
+        "financial advice. By using the app, you assume full liability for "
+        "any damages, financial or otherwise, that you or others incur as a "
+        "result of your use of the app.", size="xs"
+    )
+]
+
 plans = {}
 
 #################################################
@@ -202,7 +229,17 @@ plan_details_view_content = dmc.GridCol(
 #################### LAYOUT #####################
 #################################################
 
+disclaimer_drawer = dmc.Drawer(
+    id="disclaimer_drawer",
+    title="",
+    size="md",
+    position="right",
+    opened=False,
+    children=disclaimer_content
+)
+
 app.layout = dmc.MantineProvider([
+    disclaimer_drawer,
     dcc.Store(id='amortizations-store', data=[]),
     dcc.Store(id='debt-details-store', data={}),
     dcc.Store(id='form-state-store', data={'mode': 'add', 'debt_index': None}),
@@ -214,24 +251,33 @@ app.layout = dmc.MantineProvider([
                 html.P(
                     "Break the chains of your peonage and claim delicious freedom at last",
                     style={'fontSize': 10}),
-            ], span = 11),
+            ], span = 10),
             dmc.GridCol([
-                html.A(
-                    dmc.ActionIcon(
-                        DashIconify(
-                            icon="mdi:github", 
-                            width=30
-                        ), 
-                        size="lg",
+                dmc.Group([
+                    dmc.Button(
+                        "Disclaimer",
+                        id="disclaimer_button",
                         variant="subtle",
-                        color="gray"
+                        size="xs",
+                        color="gray",
+                        n_clicks=0
                     ),
-                    href="htps://github.com/a-purdie/juggle",
-                    target="_blank",
-                    style={"marginTop": "15px"}
-                ), 
-            ], span=1, style={"textAlign": "right"}),
-    ]),
+                    html.A(
+                        dmc.ActionIcon(
+                            DashIconify(
+                                icon="mdi:github", 
+                                width=30
+                            ), 
+                            size="lg",
+                            variant="subtle",
+                            color="gray"
+                        ),
+                        href="https://github.com/a-purdie/juggle",
+                        target="_blank"
+                    )
+                ]),
+            ], span=2, style={"textAlign": "right"}),
+        ]),
         html.Hr(),
         dmc.Grid([
                 dmc.GridCol(
@@ -292,15 +338,6 @@ app.layout = dmc.MantineProvider([
 #################################################
 
 cb.register_callbacks(app)
-
-# def add_security_headers(response):
-#     """Add security headers to all responses"""
-#     response.headers['X-Content-Type-Options'] = 'nosniff'
-#     response.headers['X-Frame-Options'] = 'DENY'
-#     response.headers['X-XSS-Protection'] = '1; mode=block'
-#     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-#     response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.plot.ly https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com; img-src 'self' data: https: https://api.iconify.design;"
-#     return response
 
 def add_security_headers(response):
     """Add security headers to all responses"""
