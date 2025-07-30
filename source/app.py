@@ -10,11 +10,11 @@ from source.utils.helpers import create_plans_coming_soon
 
 external_stylesheets = [
     "https://fonts.googleapis.com/css2?family=Chonburi&display=swap",
-    "./assets/bootstrap.css",
-    "./assets/fontawesome/css/fontawesome.css",
-    "./assets/fontawesome/css/solid.css",
-    "./assets/custom.css",
-    "./assets/table-styles.css",
+    "/assets/bootstrap.css",
+    "/assets/fontawesome/css/fontawesome.css",
+    "/assets/fontawesome/css/solid.css",
+    "/assets/custom.css",
+    "/assets/table-styles.css",
     dmc.styles.ALL,
     dmc.styles.DATES
 ]

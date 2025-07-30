@@ -14,8 +14,14 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application files
+# Copy application files 
 COPY source/ ./source/
+
+# Create assets directory in the expected location
+RUN mkdir -p ./assets
+
+# Copy assets to the assets directory that Dash expects by default
+COPY source/assets/ ./assets/
 
 # Set ownership
 RUN chown -R appuser:appuser /app
@@ -26,5 +32,5 @@ USER appuser
 # Expose port (Cloud Run uses PORT env variable)
 EXPOSE 8080
 
-# Use gunicorn for production
+# Use gunicorn for production with proper environment variables
 CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 source.app:server
