@@ -3,6 +3,7 @@ from dash import Dash, html, dcc, _dash_renderer
 import os
 from flask import make_response
 from functools import wraps
+from dash_iconify import DashIconify
 import pandas as pd
 import plotly.graph_objects as go
 from source.components import callbacks as cb
@@ -207,10 +208,30 @@ app.layout = dmc.MantineProvider([
     dcc.Store(id='form-state-store', data={'mode': 'add', 'debt_index': None}),
     # Main app container
     dmc.Container([
-        html.H1("indentured.services", style={'font-family': 'Chonburi'}),
-        html.P(
-            "Break the chains of your peonage and claim delicious freedom at last",
-            style={'fontSize': 10}),
+        dmc.Grid([
+            dmc.GridCol([
+                html.H1("indentured.services", style={'font-family': 'Chonburi'}),
+                html.P(
+                    "Break the chains of your peonage and claim delicious freedom at last",
+                    style={'fontSize': 10}),
+            ], span = 11),
+            dmc.GridCol([
+                html.A(
+                    dmc.ActionIcon(
+                        DashIconify(
+                            icon="mdi:github", 
+                            width=30
+                        ), 
+                        size="lg",
+                        variant="subtle",
+                        color="gray"
+                    ),
+                    href="htps://github.com/a-purdie/juggle",
+                    target="_blank",
+                    style={"marginTop": "15px"}
+                ), 
+            ], span=1, style={"textAlign": "right"}),
+    ]),
         html.Hr(),
         dmc.Grid([
                 dmc.GridCol(
@@ -272,13 +293,29 @@ app.layout = dmc.MantineProvider([
 
 cb.register_callbacks(app)
 
+# def add_security_headers(response):
+#     """Add security headers to all responses"""
+#     response.headers['X-Content-Type-Options'] = 'nosniff'
+#     response.headers['X-Frame-Options'] = 'DENY'
+#     response.headers['X-XSS-Protection'] = '1; mode=block'
+#     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+#     response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.plot.ly https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com; img-src 'self' data: https: https://api.iconify.design;"
+#     return response
+
 def add_security_headers(response):
     """Add security headers to all responses"""
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.plot.ly https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com; img-src 'self' data: https: https://api.iconify.design;"
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.plot.ly https://fonts.googleapis.com https://api.iconify.design https://code.iconify.design; "
+        "connect-src 'self' https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com; "
+        "img-src 'self' data: https: https://api.iconify.design;"
+    )
     return response
 
 @app.server.after_request
