@@ -43,7 +43,7 @@ def register_callbacks(app):
         payment_amount_args = [
             balance, interest_rate, payment_amount, payment_frequency
         ]
-        
+
         # Validation logic (same for both modes)
         # Initialize error values
         payment_amount_error = None
@@ -237,6 +237,9 @@ def register_callbacks(app):
         """
         Creates the debt graph and table views.
         """
+        # Sanitize the name string
+        name = h.sanitize_string(name)
+
         # Check if this is an actual button click or just initialization
         ctx = callback_context
         if not ctx.triggered or n_clicks == 0 or n_clicks is None:

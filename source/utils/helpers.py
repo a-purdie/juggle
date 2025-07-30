@@ -1,9 +1,18 @@
 from datetime import datetime
 import source.base as b
 import dash_mantine_components as dmc
-from dash import html
+import dash.html
 from dash_iconify import DashIconify
+import html
+import re
 
+def sanitize_string(value, max_length=100):
+    if not value:
+        return ""
+    value = html.escape(str(value))
+    value = re.sub(r'[^\x20-\x7E]', '', value)
+    return value[:max_length]
+    
 def get_amortization(
         name, account_type, balance, interest_rate, 
         interest_calculation_method, payment_frequency, next_payment_date, 
@@ -192,7 +201,7 @@ def create_debt_form(mode="add", debt_data=None, debt_index=None):
 
     form = dmc.Card([
         dmc.CardSection([
-            html.H3(title, className='card_title'),
+            dash.html.H3(title, className='card_title'),
             dmc.Text("All fields are required.", size="sm", mt="xs", mb="md"),
             dmc.Stack([
                 create_debt_name_input(value=values['name']),
@@ -202,7 +211,7 @@ def create_debt_form(mode="add", debt_data=None, debt_index=None):
                 create_payment_frequency_input(value=values['frequency']),
                 create_next_payment_date_input(value=values['next_payment_date'])
             ], gap="xs"),
-            html.Hr(),
+            dash.html.Hr(),
             dmc.Group([
                 dmc.Button(
                     button_text,
@@ -237,7 +246,7 @@ def create_plans_coming_soon():
     """
     Creates a simple "Coming Soon" placeholder for the Plans tab
     """
-    return html.Div([
+    return dash.html.Div([
         dmc.Center([
             dmc.Stack([
                 dmc.ThemeIcon(

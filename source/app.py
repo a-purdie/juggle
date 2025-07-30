@@ -1,5 +1,8 @@
 import dash_mantine_components as dmc
 from dash import Dash, html, dcc, _dash_renderer
+import os
+from flask import make_response
+from functools import wraps
 import pandas as pd
 import plotly.graph_objects as go
 from source.components import callbacks as cb
@@ -265,6 +268,29 @@ app.layout = dmc.MantineProvider([
 
 cb.register_callbacks(app)
 
+def add_security_headers(response):
+    """Add security headers to all responses"""
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.plot.ly https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:;"
+    return response
+
+@app.server.after_request
+def apply_security_headers(response):
+    return add_security_headers(response)
+
 if __name__ == '__main__':
-    # app.run(debug = True)
-    app.run(debug = True, port = 8050, host = "0.0.0.0")
+    # Check if running in production
+    is_production = (os.environ.get('GAE_ENV', '').startswith('standard') or 
+                    os.environ.get('K_SERVICE') is not None)
+    
+    if is_production:
+        app.run(
+            debug=False, 
+            port=int(os.environ.get('PORT', 8080)), 
+            host='0.0.0.0'
+        )
+    else:
+        app.run(debug=True, port=8050, host='127.0.0.1')
