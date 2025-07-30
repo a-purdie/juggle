@@ -2,10 +2,10 @@ from dash import html, callback_context, no_update
 from dash.dependencies import Input, Output, State, ALL
 from dash_iconify import DashIconify
 import dash_mantine_components as dmc
-from source.utils import helpers as h
+from utils import helpers as h
 import plotly.graph_objects as go
-from source.utils import constants as c
-import source.base as b
+from utils import constants as c
+import base as b
 import json
 
 def register_callbacks(app):
