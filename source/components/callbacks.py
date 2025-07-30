@@ -50,11 +50,11 @@ def register_callbacks(app):
         balance_error = None
         interest_rate_error = None
         
-        # Check if balance and payment_amount are filled to validate their relationship
-        if balance is not None and payment_amount is not None and len(str(balance).strip()) > 0 and len(str(payment_amount).strip()) > 0:
+        # Check if balance and payment_amount are filled and valid
+        if (len(str(balance).strip()) > 0 
+            and len(str(payment_amount).strip()) > 0):
             # Check if payment exceeds balance
             if float(balance) < float(payment_amount):
-                # Payment exceeds balance
                 payment_amount_error = "The payment amount exceeds the balance"
                 balance_error = "The payment amount exceeds the balance"
                 
@@ -178,10 +178,12 @@ def register_callbacks(app):
             form = h.create_debt_form(mode="add")
             return True, "", form, {'mode': 'add', 'debt_index': None}
         
-        # Edit button clicked - prop_id format will be: {"type":"open_edit_debt_form_button","index":X}.n_clicks
+        # Edit button clicked
+        # prop_id format is 
+        # {"type":"open_edit_debt_form_button","index":X}.n_clicks
         elif 'open_edit_debt_form_button' in triggered_prop_id:
             try:
-                # Extract just the component ID part (everything before the .n_clicks)
+                # Extract just the component ID 
                 component_id = triggered_prop_id.split('.')[0]
                 
                 # Parse the JSON string to get the index
@@ -241,7 +243,9 @@ def register_callbacks(app):
             return no_update, no_update, no_update, no_update
             
         # Validate that all required form fields have values
-        if not all([name, balance, rate, payment_amount, frequency, next_payment_date]):
+        if not all([
+            name, balance, rate, payment_amount, frequency, next_payment_date
+        ]):
             return no_update, no_update, no_update, no_update
 
         # Initialize store data if None
@@ -309,7 +313,10 @@ def register_callbacks(app):
                             dmc.Group([
                                 dmc.ActionIconGroup([
                                     dmc.ActionIcon(
-                                        DashIconify(icon='iconoir:edit', width=20),
+                                        DashIconify(
+                                            icon='iconoir:edit', 
+                                            width=20
+                                        ),
                                         size='lg',
                                         n_clicks=0,
                                         color="blue",
@@ -319,7 +326,10 @@ def register_callbacks(app):
                                             'index': current_debt_index
                                             }),
                                     dmc.ActionIcon(
-                                        DashIconify(icon='iconoir:xmark-circle', width=20),
+                                        DashIconify(
+                                            icon='iconoir:xmark-circle', 
+                                            width=20
+                                        ),
                                         size='lg',
                                         n_clicks=0,
                                         color='red',
@@ -335,15 +345,32 @@ def register_callbacks(app):
                         )
                     ]), 
                     dmc.Grid([
-                        dmc.GridCol(dmc.Text(f"Balance: ${float(balance):,.2f}", size="xs"), span=6), 
-                        dmc.GridCol(dmc.Text(f"Rate: {float(rate):,.2f}%", size="xs"), span=6)
+                        dmc.GridCol(dmc.Text(
+                            f"Balance: ${float(balance):,.2f}", 
+                            size="xs"
+                        ), 
+                        span=6), 
+                        dmc.GridCol(dmc.Text(
+                            f"Rate: {float(rate):,.2f}%", 
+                            size="xs"
+                            ), 
+                        span=6)
                     ]),
                     dmc.Grid([
-                        dmc.GridCol(dmc.Text(f"Payment Amount: ${float(payment_amount):,.2f}", size="xs"), span=6), 
-                        dmc.GridCol(dmc.Text(f"{frequency} Payments", size="xs"), span=6)
+                        dmc.GridCol(dmc.Text(
+                            f"Payment Amount: ${float(payment_amount):,.2f}", 
+                            size="xs"
+                        ), span=6), 
+                        dmc.GridCol(dmc.Text(
+                            f"{frequency} Payments", 
+                            size="xs"
+                        ), span=6)
                     ]),
                     dmc.Grid([
-                        dmc.GridCol(dmc.Text(f"Next Payment Date: {next_payment_date}", size="xs"), span=12)
+                        dmc.GridCol(dmc.Text(
+                            f"Next Payment Date: {next_payment_date}", 
+                            size="xs"
+                        ), span=12)
                     ])
                 ], p="md")
             ], style={"borderColor": debt_color}, withBorder=True),

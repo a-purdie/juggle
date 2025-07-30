@@ -1,10 +1,7 @@
-import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
 from dash import Dash, html, dcc, _dash_renderer
 import pandas as pd
 import plotly.graph_objects as go
-import plotly.express.colors as color
-from source.utils import constants as c
 from source.components import callbacks as cb
 from source.utils.helpers import create_plans_coming_soon
 
@@ -20,77 +17,11 @@ external_stylesheets = [
 ]
 
 app = Dash(external_stylesheets=external_stylesheets)
-app.config.suppress_callback_exceptions = True  # Add this to handle dynamic components
+app.config.suppress_callback_exceptions = True  # To handle dynamic components
 _dash_renderer._set_react_version('18.2.0')
 app.title = 'indentured.services - Debt Calculator'
 
-# debt_details is a dictionary that holds all the debts that have been added by 
-# the user so far. Its keys are sequential, non-negative integers that increment 
-# by one when a new debt is added, and its values are also dictionaries with three
-# key-value pairs. The inner dictionary's keys are "name", "amortization" 
-# and "traces". The "name" item contains the name of the debt provided by 
-# the user. The "amortization" item holds the amortization table components 
-# that are printed to the table view. The "traces" item holds another dictionary 
-# containing the details needed to add a trace to the payoff graph. The keys 
-# of the traces dictionary are "x", "y", representing the x and y coordinates 
-# of the amortization schedule.
-
-# plans is a dictionary that holds all the details about user specified payoff 
-# plans. Plans can be one of three types:
-### 1) Minimum payments only; payment amounts remain the same for all debts
-###    across time, aside from user created rules
-### 2) Snowball; payment amounts are added to the next highest balance as debt 
-###    is paid off
-### 3) Avalanche; payment amounts are added to the next highest interest rate 
-###    as debt is paid off
-# Within each plan, the user can specify rules. A rule specifies one or more 
-# payments beyond the minimum payment (paymentAmount) on a single debt. The 
-# attributes of a rule are 
-### 1) name
-### 2) amount
-### 3) one time payment or multiple payments indicator
-### 4) start date
-### 5) end date (only applies when the rule contains multiple payments)+
-### 6) debt (pick from the debt's the user has added or choose to follow the 
-###    payoff strategy specified by the plan type)
-# The plans dictionary contains one key-value pair for each plan defined by 
-# the user, where the key is the name of the plan. Each plan is another 
-# dictionary with two key-value pairs. The first key is 'type' and specifies 
-# the payoff strategy (minimum, snowball, or avalanche). The second key is 
-# 'rules', which specifies the user defined rules. The value of the 'rules' 
-# pair is another dictionary, with keys set to rule names. The value of each 
-# rule is yet another dictionary that specify items 2 - 6 from the description 
-# of rules above. So as an example:
-
-# plans = {
-#     'My Plan': {
-#         {
-#             'type': 'avalanche',
-#             'rules': {
-#                 'My First Rule': {
-#                     'amount': 500,
-#                     'singleOrMultiple': 'multiple',
-#                     'startDate': '2025-01-31',
-#                     'endDate': '2026-01-31',
-#                     'debt': 'strategy'
-#                 }
-#             }
-#         }
-# }}
-
-# This user would have a single plan in the Plans tab called "My Plan" with 
-# the avalanche payoff strategy. It would have a single rule that would apply 
-# an additional $500.00 payment to the debt consistent with the plan's payoff 
-# strategy for one year, i.e., to the debt with the highest interest rate.
-
 plans = {}
-
-# Specifies the order of color assignment of the lines and debt cards
-color_order = color.qualitative.Dark24
-lighter_color_order = [
-    '#d5e9fa', '#f9dfeb', '#c9f6c9'
-]
-debt_count = 0
 
 #################################################
 ######### ADD PLANS FORM AND CONTROLS ###########
@@ -228,14 +159,13 @@ debt_cards_container = html.Div(
     style={
         'maxHeight': 'calc(95vh - 180px)',
         'overflowY': 'auto',  # Show scrollbar only when its needed
-        'scrollbarWidth': 'thin', # Thinner scrollbar (works in Firefox)
-        'msOverflowStyle': 'none', # Hide scrollbar in IE/Edge
+        'scrollbarWidth': 'thin', # Thinner scrollbar for Firefox users
+        'msOverflowStyle': 'none', # Hide scrollbar in Edge
     }
 )
 
 # Main debt details view with fixed button and scrollable cards area
 debt_details_view_content = dmc.GridCol([
-    # Fixed "Add new debt" button at the top
     dmc.Grid([
         dmc.GridCol(
             dmc.Button(
@@ -280,11 +210,23 @@ app.layout = dmc.MantineProvider([
                     dmc.Tabs(
                         [
                             dmc.TabsList([
-                                dmc.TabsTab("Debt Details", value="debt_details"),
-                                dmc.TabsTab("Plans", value="plans"),
+                                dmc.TabsTab(
+                                    "Debt Details", 
+                                    value="debt_details"
+                                    ),
+                                dmc.TabsTab(
+                                    "Plans", 
+                                    value="plans"
+                                    ),
                             ]),
-                            dmc.TabsPanel(debt_details_view_content, value="debt_details"),
-                            dmc.TabsPanel(plan_details_view_content, value="plans"),
+                            dmc.TabsPanel(
+                                debt_details_view_content, 
+                                value="debt_details"
+                                ),
+                            dmc.TabsPanel(
+                                plan_details_view_content, 
+                                value="plans"
+                                ),
                         ],
                         value="debt_details"
                     ), 
@@ -296,8 +238,14 @@ app.layout = dmc.MantineProvider([
                                 dmc.TabsTab("Graph View", value="graph_view"),
                                 dmc.TabsTab("Table View", value="table_view"),
                             ]),
-                            dmc.TabsPanel(graph_view_content, value="graph_view"),
-                            dmc.TabsPanel(amortization_view_content, value="table_view"),
+                            dmc.TabsPanel(
+                                graph_view_content, 
+                                value="graph_view"
+                                ),
+                            dmc.TabsPanel(
+                                amortization_view_content, 
+                                value="table_view"
+                                ),
                         ],
                         value="graph_view"
                     ),
