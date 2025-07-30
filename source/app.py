@@ -266,6 +266,8 @@ app.layout = dmc.MantineProvider([
 ###################### RUN ######################
 #################################################
 
+server = app.server
+
 cb.register_callbacks(app)
 
 def add_security_headers(response):
