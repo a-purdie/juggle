@@ -10,18 +10,18 @@ from source.utils.helpers import create_plans_coming_soon
 
 external_stylesheets = [
     "https://fonts.googleapis.com/css2?family=Chonburi&display=swap",
-    "/assets/bootstrap.css",
-    "/assets/fontawesome/css/fontawesome.css",
-    "/assets/fontawesome/css/solid.css",
-    "/assets/custom.css",
-    "/assets/table-styles.css",
+    "assets/bootstrap.css",
+    "assets/fontawesome/css/fontawesome.css",
+    "assets/fontawesome/css/solid.css",
+    "assets/custom.css",
+    "assets/table-styles.css",
     dmc.styles.ALL,
     dmc.styles.DATES
 ]
 
 app = Dash(
     external_stylesheets=external_stylesheets,
-    assets_folder='./source/assets'
+    # assets_folder='./source/assets'
 )
 app.config.suppress_callback_exceptions = True  # To handle dynamic components
 server = app.server
@@ -278,7 +278,7 @@ def add_security_headers(response):
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.plot.ly https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:;"
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.plot.ly https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com; img-src 'self' data: https:;"
     return response
 
 @app.server.after_request
