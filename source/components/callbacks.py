@@ -2,10 +2,10 @@ from dash import html, callback_context, no_update
 from dash.dependencies import Input, Output, State, ALL
 from dash_iconify import DashIconify
 import dash_mantine_components as dmc
-from utils import helpers as h
+from source.utils import helpers as h
 import plotly.graph_objects as go
-from utils import constants as c
-import base as b
+from source.utils import constants as c
+import source.base as b
 import json
 
 def register_callbacks(app):
@@ -237,9 +237,10 @@ def register_callbacks(app):
         """
         Creates the debt graph and table views.
         """
+
         # Sanitize the name string
         name = h.sanitize_string(name)
-
+        
         # Check if this is an actual button click or just initialization
         ctx = callback_context
         if not ctx.triggered or n_clicks == 0 or n_clicks is None:

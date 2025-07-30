@@ -5,8 +5,8 @@ from flask import make_response
 from functools import wraps
 import pandas as pd
 import plotly.graph_objects as go
-from components import callbacks as cb
-from utils.helpers import create_plans_coming_soon
+from source.components import callbacks as cb
+from source.utils.helpers import create_plans_coming_soon
 
 external_stylesheets = [
     "https://fonts.googleapis.com/css2?family=Chonburi&display=swap",
