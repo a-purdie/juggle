@@ -16,6 +16,7 @@ external_stylesheets = [
     "assets/fontawesome/css/solid.css",
     "assets/custom.css",
     "assets/table-styles.css",
+    "assets/responsive.css",
     dmc.styles.ALL,
     dmc.styles.DATES
 ]
@@ -167,7 +168,7 @@ graph_view_content = dmc.GridCol(dcc.Graph(
             )),
         id='payoff_graph', 
         style={'width': '100%', 'height': 'calc(95vh - 150px)'}, # Dynamic height based on viewport
-        config={'responsive': True}), 
+        config={'responsive': True, 'displayModeBar': False}), 
     )
 
 df = pd.DataFrame(columns=['paymentDate', 'paymentAmount', 'interestAmount', 
@@ -191,6 +192,7 @@ debt_form_drawer = dmc.Drawer(
 debt_cards_container = html.Div(
     [], 
     id='debt_cards_container',
+    className='debt-cards-container',
     style={
         'maxHeight': 'calc(95vh - 180px)',
         'overflowY': 'auto',  # Show scrollbar only when its needed
@@ -213,7 +215,7 @@ debt_details_view_content = dmc.GridCol([
             ),
             span=6,
             offset=3,
-            py="md"
+            py="xs"
         )
     ]),
     # Debt cards container below the button
@@ -243,6 +245,7 @@ app.layout = dmc.MantineProvider([
     dcc.Store(id='amortizations-store', data=[]),
     dcc.Store(id='debt-details-store', data={}),
     dcc.Store(id='form-state-store', data={'mode': 'add', 'debt_index': None}),
+    html.Div(id='scroll-trigger', style={'display': 'none'}),  # Dummy div for clientside callback
     # Main app container
     dmc.Container([
         dmc.Grid([
@@ -251,7 +254,7 @@ app.layout = dmc.MantineProvider([
                 html.P(
                     "Break the chains of your peonage and claim delicious freedom at last",
                     style={'fontSize': 10}),
-            ], span = 10),
+            ], span={'base': 8, 'md': 10}),
             dmc.GridCol([
                 dmc.Group([
                     dmc.Button(
@@ -275,8 +278,8 @@ app.layout = dmc.MantineProvider([
                         href="https://github.com/a-purdie/juggle",
                         target="_blank"
                     )
-                ]),
-            ], span=2, style={"textAlign": "right"}),
+                ], justify="center", wrap="nowrap"),
+            ], span={'base': 4, 'md': 2}, style={"textAlign": "center"}),
         ]),
         html.Hr(),
         dmc.Grid([
@@ -304,7 +307,7 @@ app.layout = dmc.MantineProvider([
                         ],
                         value="debt_details"
                     ), 
-                    span=3),
+                    span={'base': 12, 'md': 3}),
                 dmc.GridCol(
                     dmc.Tabs(
                         [
@@ -323,13 +326,13 @@ app.layout = dmc.MantineProvider([
                         ],
                         value="graph_view"
                     ),
-                    span=9)
+                    span={'base': 12, 'md': 9})
                 ],
-                gutter="md"
+                gutter="xs"
             )
         ],
         size="xl",
-        p="md"),
+        p="sm"),
     ],
     forceColorScheme='dark')
 

@@ -1,0 +1,106 @@
+/* Responsive styles for mobile enhancements */
+
+/* Mobile responsive styles */
+@media (max-width: 767px) {
+  /* Header text sizing and alignment for single row layout */
+  h1 {
+    font-size: 1.3rem !important;
+    text-align: left !important;
+    margin-bottom: 0.1rem !important;
+    margin-top: 0.5rem !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Compact subtitle */
+  h1 + p {
+    margin-bottom: 0.5rem !important;
+    margin-top: 0 !important;
+    font-size: 8px !important;
+    line-height: 1.1 !important;
+    text-align: left !important;
+  }
+
+
+  /* Compact the top header grid */
+  .mantine-Grid-root:first-child {
+    margin-bottom: 0.5rem !important;
+    gap: 0.25rem !important;
+  }
+
+  /* Make disclaimer button and GitHub icon smaller and closer for single row */
+  .mantine-Group-root {
+    gap: 0.3rem !important;
+  }
+
+  /* Much smaller disclaimer button for single row layout */
+  #disclaimer_button {
+    padding: 0.2rem 0.4rem !important;
+    font-size: 9px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+  }
+
+  /* Smaller GitHub icon for single row layout */
+  .mantine-ActionIcon-root {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+  }
+
+  /* Reduce horizontal rule margin */
+  hr {
+    margin: 0.5rem 0 !important;
+  }
+
+  /* Change debt cards to horizontal scrolling on mobile */
+  .debt-cards-container {
+    /* Remove vertical scrolling */
+    max-height: none !important;
+    overflow-y: visible !important;
+    
+    /* Enable horizontal scrolling */
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    
+    gap: 1rem !important;
+    padding: 1rem 0 !important;
+    scroll-snap-type: x mandatory !important;
+  }
+  
+  /* Style individual debt cards for horizontal layout - full width on mobile */
+  .debt-cards-container > div {
+    flex: 0 0 calc(100vw - 32px) !important;
+    scroll-snap-align: start !important;
+  }
+  
+  /* Remove horizontal rules between cards in mobile */
+  .debt-cards-container hr {
+    display: none !important;
+  }
+
+  
+  /* Button improvements */
+  #open_add_debt_form_button {
+    width: 100% !important;
+    min-height: 44px !important;
+  }
+  
+  /* Graph sizing */
+  #payoff_graph {
+    height: 400px !important;
+  }
+  
+  /* Drawer responsive */
+  .mantine-Drawer-drawer {
+    width: 95vw !important;
+  }
+  
+  
+  /* Ensure proper spacing between main content sections */
+  .mantine-Grid-root:last-child {
+    margin-bottom: 1rem !important;
+  }
+}

@@ -347,37 +347,16 @@ def register_callbacks(app):
                             ], justify="flex-end"),
                             span=3
                         )
-                    ]), 
-                    dmc.Grid([
-                        dmc.GridCol(dmc.Text(
-                            f"Balance: ${float(balance):,.2f}", 
-                            size="xs"
-                        ), 
-                        span=6), 
-                        dmc.GridCol(dmc.Text(
-                            f"Rate: {float(rate):,.2f}%", 
-                            size="xs"
-                            ), 
-                        span=6)
-                    ]),
-                    dmc.Grid([
-                        dmc.GridCol(dmc.Text(
-                            f"Payment Amount: ${float(payment_amount):,.2f}", 
-                            size="xs"
-                        ), span=6), 
-                        dmc.GridCol(dmc.Text(
-                            f"{frequency} Payments", 
-                            size="xs"
-                        ), span=6)
-                    ]),
-                    dmc.Grid([
-                        dmc.GridCol(dmc.Text(
-                            f"Next Payment Date: {next_payment_date}", 
-                            size="xs"
-                        ), span=12)
-                    ])
-                ], p="md")
-            ], style={"borderColor": debt_color}, withBorder=True),
+                    ], gutter="xs"),
+                    dmc.Stack([
+                        dmc.Text(f"${float(balance):,.2f} Balance with {float(rate):,.2f}% Interest Rate", size="xs"),
+                        # dmc.Text(f"Rate: {float(rate):,.2f}%", size="xs"),
+                        dmc.Text(f"Paying ${float(payment_amount):,.2f} Every {frequency[:-2]}", size="xs"),
+                        # dmc.Text(f"{frequency} Payments", size="xs"),
+                        dmc.Text(f"Next Payment On {next_payment_date}", size="xs")
+                    ], gap=2)
+                ], p="sm")
+            ], style={"borderColor": debt_color, "width": "100%", "maxWidth": "calc(100vw - 48px)"}, withBorder=True),
             html.Hr()], 
             id={'type': 'debt_cards', 'index': current_debt_index})
         
@@ -415,12 +394,20 @@ def register_callbacks(app):
         fig = go.Figure(layout=go.Layout(template='plotly_dark'))
         
         if not amortizations_data:
-            # Set a title for the empty state but keep the dark theme
+            # Configure empty state with minimal margins and no interactions
             fig.update_layout(
-                title='Add a debt to visualize your payoff timeline',
-                yaxis_tickprefix='$',
-                yaxis_tickformat=',.2f',
+                yaxis=dict(
+                    tickprefix='$',
+                    tickformat='.1f',
+                    ticksuffix='K',
+                    nticks=5,
+                    fixedrange=True
+                ),
+                xaxis=dict(
+                    fixedrange=True
+                ),
                 showlegend=False,
+                margin=dict(l=20, r=10, t=10, b=20)
             )
             return fig
         
@@ -430,20 +417,31 @@ def register_callbacks(app):
             debt_color = amort_data.get('color', '#000000')
             raw_data = amort_data.get('raw_data', {})
             
-            # Add trace using the raw data (better for numeric operations)
+            # Add trace using the raw data, converting to thousands for K format
+            balances = raw_data.get('balances', [])
+            balances_in_thousands = [balance / 1000 for balance in balances]
+            
             fig.add_trace(go.Scatter(
                 x=raw_data.get('dates', []),
-                y=raw_data.get('balances', []),
+                y=balances_in_thousands,
                 line={'color': debt_color},
                 name=name
             ))
         
-        # Configure layout
+        # Configure layout with minimal margins and no interactions
         fig.update_layout(
-            yaxis_tickprefix='$',
-            yaxis_tickformat=',.2f',
+            yaxis=dict(
+                tickprefix='$',
+                tickformat='.1f', 
+                ticksuffix='K',
+                nticks=5,
+                fixedrange=True
+            ),
+            xaxis=dict(
+                fixedrange=True
+            ),
             showlegend=False,
-            title='Debt Payoff Timeline'
+            margin=dict(l=20, r=10, t=10, b=20)
         )
         
         return fig
@@ -483,6 +481,7 @@ def register_callbacks(app):
                             horizontalSpacing="xs",
                             verticalSpacing="xs",
                             className="amortization-table",
+                            style={"fontSize": "0.85rem"},
                             children=[
                                 html.Thead(
                                     html.Tr([html.Th(col) for col in columns])
@@ -569,3 +568,32 @@ def register_callbacks(app):
         if n_clicks:
             return not is_open
         return is_open
+
+    # Clientside callback to auto-scroll to newly added debt cards
+    app.clientside_callback(
+        """
+        function(children) {
+            if (children && children.length > 0) {
+                // Small delay to ensure DOM is fully updated
+                setTimeout(() => {
+                    // Find all debt cards in the container
+                    const debtCards = document.querySelectorAll('[id*="debt_cards"]');
+                    if (debtCards.length > 0) {
+                        // Get the last (newest) card
+                        const newestCard = debtCards[debtCards.length - 1];
+                        // Scroll to it smoothly
+                        newestCard.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'nearest',
+                            inline: 'start'
+                        });
+                    }
+                }, 200);
+            }
+            return window.dash_clientside.no_update;
+        }
+        """,
+        Output('scroll-trigger', 'children'),
+        Input('debt_cards_container', 'children'),
+        prevent_initial_call=True
+    )
