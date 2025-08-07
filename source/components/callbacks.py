@@ -69,11 +69,11 @@ def register_callbacks(app):
         # Continue with additional validation if all necessary fields are filled
         if all(i is not None and len(str(i)) > 0 for i in payment_amount_args):
             # Calculate period interest
-            days = {'Monthly': 31, 'Fortnightly': 14, 'Weekly': 7}
+            days = c.PAYMENT_FREQUENCY_DAYS
             period_interest = (
                 float(balance) 
                 * float(interest_rate) 
-                * (days[payment_frequency]/36500)
+                * (days[payment_frequency]/c.DAYS_IN_YEAR_FOR_PERCENTAGE)
             )
             
             # Check if payment covers interest
@@ -419,7 +419,7 @@ def register_callbacks(app):
             
             # Add trace using the raw data, converting to thousands for K format
             balances = raw_data.get('balances', [])
-            balances_in_thousands = [balance / 1000 for balance in balances]
+            balances_in_thousands = [balance / c.FORMATTING_DIVISOR for balance in balances]
             
             fig.add_trace(go.Scatter(
                 x=raw_data.get('dates', []),
@@ -571,27 +571,27 @@ def register_callbacks(app):
 
     # Clientside callback to auto-scroll to newly added debt cards
     app.clientside_callback(
-        """
-        function(children) {
-            if (children && children.length > 0) {
+        f"""
+        function(children) {{
+            if (children && children.length > 0) {{
                 // Small delay to ensure DOM is fully updated
-                setTimeout(() => {
+                setTimeout(() => {{
                     // Find all debt cards in the container
                     const debtCards = document.querySelectorAll('[id*="debt_cards"]');
-                    if (debtCards.length > 0) {
+                    if (debtCards.length > 0) {{
                         // Get the last (newest) card
                         const newestCard = debtCards[debtCards.length - 1];
                         // Scroll to it smoothly
-                        newestCard.scrollIntoView({
+                        newestCard.scrollIntoView({{
                             behavior: 'smooth',
                             block: 'nearest',
                             inline: 'start'
-                        });
-                    }
-                }, 200);
-            }
+                        }});
+                    }}
+                }}, {c.SCROLL_DELAY_MS});
+            }}
             return window.dash_clientside.no_update;
-        }
+        }}
         """,
         Output('scroll-trigger', 'children'),
         Input('debt_cards_container', 'children'),

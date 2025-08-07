@@ -11,6 +11,31 @@
     line-height: 1.2 !important;
   }
 
+  /* Ensure proper heading hierarchy in drawers/modals */
+  .mantine-Drawer-content h1 {
+    font-size: 1.5rem !important;
+    margin-bottom: 1rem !important;
+    margin-top: 1rem !important;
+  }
+
+  .mantine-Drawer-content h2 {
+    font-size: 1.3rem !important;
+    margin-bottom: 0.8rem !important;
+    margin-top: 1rem !important;
+  }
+
+  .mantine-Drawer-content h3 {
+    font-size: 1.1rem !important;
+    margin-bottom: 0.6rem !important;
+    margin-top: 0.8rem !important;
+  }
+
+  .mantine-Drawer-content h4 {
+    font-size: 1rem !important;
+    margin-bottom: 0.5rem !important;
+    margin-top: 0.6rem !important;
+  }
+
   /* Compact subtitle */
   h1 + p {
     margin-bottom: 0.5rem !important;
