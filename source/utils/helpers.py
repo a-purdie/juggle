@@ -5,6 +5,7 @@ import dash.html
 from dash_iconify import DashIconify
 import html
 import re
+from source.utils import constants as c
 
 def sanitize_string(value, max_length=100):
     if not value:
@@ -44,123 +45,137 @@ def create_form_field_row(label, component):
         dmc.GridCol(component, span=8)
     ], gutter="xs", mb="sm")
 
-def create_debt_name_input(debt_index=None, value=None):
-    id = check_debt_index('name', debt_index)
 
-    name_input = create_form_field_row(
-        "Name",
-        dmc.TextInput(
-            id=id,
-            value=value,
-            placeholder="Enter debt name",
-            styles={"input": {"width": "100%"}}
-        )
-    )
+def create_form_field(field_type, field_name, label, debt_index=None, value=None, **kwargs):
+    """
+    Generic factory function to create form fields with consistent structure.
     
-    return name_input
-
-def create_balance_input(debt_index=None, value=None):
-    id = check_debt_index('balance', debt_index)
-
-    balance_input = create_form_field_row(
-        "Balance",
-        dmc.NumberInput(
-            id=id,
-            value=value,
-            step=10,
-            min=0,
-            max=1000000,  # Maximum value of 1 million
-            placeholder="Enter balance amount",
-            error=None,  # Will be set by callback
-            hideControls=True,  # Hide the increment/decrement controls
-            decimalScale=2,  # Show 2 decimal places
-            fixedDecimalScale=True,  # Always show 2 decimal places
-            prefix="$",  # Add dollar sign prefix
-            styles={"input": {"width": "100%"}}
-        )
-    )
+    Args:
+        field_type: Type of input ('text', 'number', 'select', 'date')
+        field_name: The field name for ID generation
+        label: Display label for the field
+        debt_index: Optional debt index for edit mode
+        value: Initial value for the field
+        **kwargs: Additional props to pass to the component
+    """
+    field_id = check_debt_index(field_name, debt_index)
     
-    return balance_input
-
-def create_interest_rate_input(debt_index=None, value=None):
-    id = check_debt_index('interest_rate', debt_index)
-
-    interest_rate_input = create_form_field_row(
-        "Interest Rate",
-        dmc.NumberInput(
-            id=id,
-            value=value,
-            step=0.1,
-            min=0,
-            max=100,  # Maximum interest rate of 100%
-            placeholder="Enter interest rate",
-            hideControls=True,  # Hide the increment/decrement controls
-            decimalScale=3,  # Allow up to 3 decimal places
-            fixedDecimalScale=False,  # Don't force showing all 3 decimal places
-            suffix="%",  # Add percent sign suffix
-            styles={"input": {"width": "100%"}}
-        )
-    )
-
-    return interest_rate_input
-
-def create_payment_amount_input(debt_index=None, value=None):
-    id = check_debt_index('payment_amount', debt_index)
-
-    payment_amount_input = create_form_field_row(
-        "Payment Amount",
-        dmc.NumberInput(
-            id=id,
-            value=value,
-            step=10,
-            min=0,
-            max=1000000,  # Maximum value of 1 million
-            placeholder="Enter payment amount",
-            error=None,  # Error will be set by callback if needed
-            hideControls=True,  # Hide the increment/decrement controls
-            decimalScale=2,  # Show 2 decimal places
-            fixedDecimalScale=True,  # Always show 2 decimal places
-            prefix="$",  # Add dollar sign prefix
-            styles={"input": {"width": "100%"}}
-        )
-    )
+    # Default styles for all inputs
+    default_styles = {"input": {"width": "100%"}}
+    styles = kwargs.pop('styles', default_styles)
     
-    return payment_amount_input
-
-def create_payment_frequency_input(debt_index=None, value=None):
-    id = check_debt_index('payment_frequency', debt_index)
-    
-    payment_frequency_input = create_form_field_row(
-        "Payment Frequency",
-        dmc.Select(
-            id=id,
+    if field_type == 'text':
+        component = dmc.TextInput(
+            id=field_id,
             value=value,
-            data=["Monthly", "Fortnightly", "Weekly"],
-            placeholder="Select payment frequency",
+            styles=styles,
+            **kwargs
+        )
+    elif field_type == 'number':
+        component = dmc.NumberInput(
+            id=field_id,
+            value=value,
+            hideControls=True,
+            styles=styles,
+            **kwargs
+        )
+    elif field_type == 'select':
+        component = dmc.Select(
+            id=field_id,
+            value=value,
             clearable=False,
             searchable=True,
-            styles={"input": {"width": "100%"}}
+            styles=styles,
+            **kwargs
         )
-    )
+    elif field_type == 'date':
+        component = dmc.DatePickerInput(
+            id=field_id,
+            value=value,
+            styles=styles,
+            **kwargs
+        )
+    else:
+        raise ValueError(f"Unsupported field_type: {field_type}")
     
-    return payment_frequency_input
+    return create_form_field_row(label, component)
+
+def create_debt_name_input(debt_index=None, value=None):
+    """Create debt name text input field."""
+    return create_form_field(
+        'text', 'name', 'Name', 
+        debt_index=debt_index, 
+        value=value,
+        placeholder="Enter debt name"
+    )
+
+def create_balance_input(debt_index=None, value=None):
+    """Create balance number input field."""
+    return create_form_field(
+        'number', 'balance', 'Balance',
+        debt_index=debt_index,
+        value=value,
+        step=10,
+        min=0,
+        max=c.MAX_DEBT_BALANCE,
+        placeholder="Enter balance amount",
+        error=None,
+        decimalScale=2,
+        fixedDecimalScale=True,
+        prefix="$"
+    )
+
+def create_interest_rate_input(debt_index=None, value=None):
+    """Create interest rate number input field."""
+    return create_form_field(
+        'number', 'interest_rate', 'Interest Rate',
+        debt_index=debt_index,
+        value=value,
+        step=0.1,
+        min=0,
+        max=c.MAX_INTEREST_RATE,
+        placeholder="Enter interest rate",
+        decimalScale=3,
+        fixedDecimalScale=False,
+        suffix="%"
+    )
+
+def create_payment_amount_input(debt_index=None, value=None):
+    """Create payment amount number input field."""
+    return create_form_field(
+        'number', 'payment_amount', 'Payment Amount',
+        debt_index=debt_index,
+        value=value,
+        step=10,
+        min=0,
+        max=c.MAX_DEBT_BALANCE,
+        placeholder="Enter payment amount",
+        error=None,
+        decimalScale=2,
+        fixedDecimalScale=True,
+        prefix="$"
+    )
+
+def create_payment_frequency_input(debt_index=None, value=None):
+    """Create payment frequency select input field."""
+    return create_form_field(
+        'select', 'payment_frequency', 'Payment Frequency',
+        debt_index=debt_index,
+        value=value,
+        data=c.PAYMENT_FREQUENCY_OPTIONS,
+        placeholder="Select payment frequency"
+    )
 
 def create_next_payment_date_input(debt_index=None, value=None):
-    id = check_debt_index('next_payment_date', debt_index)
-
-    next_payment_date_input = create_form_field_row(
-        "Next Payment Date",
-        dmc.DatePickerInput(
-            id=id, 
-            value=value,
-            minDate=datetime.today(),
-            valueFormat='YYYY-MM-DD',
-            placeholder="Select next payment date",
-            styles={"input": {"width": "100%"}}
-        )
+    """Create next payment date picker input field."""
+    return create_form_field(
+        'date', 'next_payment_date', 'Next Payment Date',
+        debt_index=debt_index,
+        value=value,
+        minDate=datetime.today().strftime('%Y-%m-%d'),
+        valueFormat='YYYY-MM-DD',
+        placeholder="Select next payment date"
     )
-    
-    return next_payment_date_input
 
 def create_add_or_edit_debt_button(debt_index=None):
     if debt_index is None:

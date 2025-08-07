@@ -13,3 +13,8 @@ DAYS_IN_YEAR_FOR_PERCENTAGE = 36500  # 365 * 100 for percentage calculation
 # UI constants
 FORMATTING_DIVISOR = 1000  # Division factor for formatting (e.g., thousands)
 SCROLL_DELAY_MS = 200  # Timeout delay in milliseconds for auto-scroll
+
+# Form field validation constants
+MAX_DEBT_BALANCE = 1000000  # Maximum debt balance
+MAX_INTEREST_RATE = 100  # Maximum interest rate percentage
+PAYMENT_FREQUENCY_OPTIONS = ["Monthly", "Fortnightly", "Weekly"]
